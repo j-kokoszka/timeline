@@ -19,6 +19,7 @@ interface HamburgerMenuProps {
   onOpenAuth: () => void;
   onOpenSearch: () => void;
   onOpenExplore: () => void;
+  onOpenAddArtist: () => void;
 }
 
 export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
@@ -33,7 +34,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onToggleLang,
   onOpenAuth,
   onOpenSearch,
-  onOpenExplore
+  onOpenExplore,
+  onOpenAddArtist
 }) => {
   if (!isOpen) return null;
 
@@ -116,9 +118,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           </div>
         </div>
 
-        {/* Actions: Explore, Search & Language */}
+        {/* Actions: Add Master, Explore & Settings */}
         <div className="menu-section">
-          <span className="menu-section-title">{lang === 'pl' ? 'Odkrywaj i Ustawienia' : 'Explore & Settings'}</span>
+          <span className="menu-section-title">{lang === 'pl' ? 'Odkrywaj i Zarządzaj' : 'Explore & Manage'}</span>
+
+          <div className="menu-item-row" onClick={() => { onOpenAddArtist(); onClose(); }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 600 }}>
+              <Compass size={18} color="var(--accent-gold)" />
+              <span>{lang === 'pl' ? '➕ Dodaj Nowego Mistrza do Osi Czasu' : '➕ Add Custom Master to Timeline'}</span>
+            </div>
+          </div>
 
           <div className="menu-item-row" onClick={() => { onOpenExplore(); onClose(); }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 600 }}>

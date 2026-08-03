@@ -2,7 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import {
   getFavorites,
   getUserRatings,
-  getArtworkRatings
+  getUserArtworkRatings
 } from './userStorage';
 
 const LEARNING_PROGRESS_KEY = 'culturedb_learning_progress';
@@ -81,7 +81,7 @@ export async function syncUserDataToCloud(): Promise<void> {
   const userId = data.user.id;
   const favorites = getFavorites();
   const artistRatings = getUserRatings();
-  const artworkRatings = getArtworkRatings();
+  const artworkRatings = getUserArtworkRatings();
 
   // Push Favorites
   if (favorites.length > 0) {

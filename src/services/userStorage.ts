@@ -1,6 +1,10 @@
+import { Artist } from '../types/timeline';
+
 const FAVORITES_KEY = 'culturedb_favorites';
 const RATINGS_KEY = 'culturedb_ratings';
 const ARTWORK_RATINGS_KEY = 'culturedb_artwork_ratings';
+const CUSTOM_ARTISTS_KEY = 'culturedb_custom_artists';
+const HIDDEN_ARTISTS_KEY = 'culturedb_hidden_artists';
 
 export function getFavorites(): string[] {
   try {
@@ -62,7 +66,7 @@ export function setUserRating(artistId: string, rating: number): number {
   return newRating;
 }
 
-export function getArtworkRatings(): Record<string, number> {
+export function getUserArtworkRatings(): Record<string, number> {
   try {
     const raw = localStorage.getItem(ARTWORK_RATINGS_KEY);
     return raw ? JSON.parse(raw) : {};
@@ -71,16 +75,15 @@ export function getArtworkRatings(): Record<string, number> {
   }
 }
 
-// Toggleable Artwork Rating: clicking current rating clears it (resets to 0)
-export function setArtworkRating(workTitle: string, rating: number): number {
-  const ratings = getArtworkRatings();
+export function setUserArtworkRating(artworkId: string, rating: number): number {
+  const ratings = getUserArtworkRatings();
   let newRating = rating;
 
-  if (ratings[workTitle] === rating) {
-    delete ratings[workTitle];
+  if (ratings[artworkId] === rating) {
+    delete ratings[artworkId];
     newRating = 0;
   } else {
-    ratings[workTitle] = rating;
+    ratings[artworkId] = rating;
   }
 
   try {
@@ -90,4 +93,66 @@ export function setArtworkRating(workTitle: string, rating: number): number {
   }
 
   return newRating;
+}
+
+/* Custom Artist Add & Remove Storage */
+export function getCustomArtists(): Artist[] {
+  try {
+    const raw = localStorage.getItem(CUSTOM_ARTISTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function saveCustomArtist(artist: Artist): void {
+  const customList = getCustomArtists();
+  const existingIndex = customList.findIndex(a => a.id === artist.id);
+  if (existingIndex >= 0) {
+    customList[existingIndex] = artist;
+  } else {
+    customList.push(artist);
+  }
+  try {
+    localStorage.setItem(CUSTOM_ARTISTS_KEY, JSON.stringify(customList));
+  } catch (e) {
+    console.warn('LocalStorage error saving custom artist', e);
+  }
+}
+
+export function deleteCustomArtist(artistId: string): void {
+  const customList = getCustomArtists().filter(a => a.id !== artistId);
+  try {
+    localStorage.setItem(CUSTOM_ARTISTS_KEY, JSON.stringify(customList));
+  } catch (e) {}
+
+  // Also add to hidden list so it doesn't reappear
+  hideArtist(artistId);
+}
+
+/* Hidden Artists Management */
+export function getHiddenArtistIds(): string[] {
+  try {
+    const raw = localStorage.getItem(HIDDEN_ARTISTS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+export function hideArtist(artistId: string): void {
+  const hidden = getHiddenArtistIds();
+  if (!hidden.includes(artistId)) {
+    hidden.push(artistId);
+    try {
+      localStorage.setItem(HIDDEN_ARTISTS_KEY, JSON.stringify(hidden));
+    } catch (e) {}
+  }
+}
+
+export function unhideArtist(artistId: string): void {
+  const hidden = getHiddenArtistIds().filter(id => id !== artistId);
+  try {
+    localStorage.setItem(HIDDEN_ARTISTS_KEY, JSON.stringify(hidden));
+  } catch (e) {}
 }

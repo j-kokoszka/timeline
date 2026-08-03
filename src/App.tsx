@@ -5,6 +5,7 @@ import { ExploreTab } from './components/ExploreTab/ExploreTab';
 import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
+import { AddArtistModal } from './components/AddArtistModal/AddArtistModal';
 import { AuthModal } from './components/AuthModal/AuthModal';
 import { HamburgerMenu } from './components/HamburgerMenu/HamburgerMenu';
 import { loadEras, loadArtists } from './lib/dataLoader';
@@ -12,7 +13,7 @@ import { Artist, Discipline, Language, Era } from './types/timeline';
 import { getUIText } from './lib/i18n';
 import { getCurrentUser, supabase } from './lib/supabase';
 import { getStudiedWorks, syncUserDataToCloud } from './services/cloudSync';
-import { getFavorites } from './services/userStorage';
+import { getFavorites, deleteCustomArtist } from './services/userStorage';
 import { searchExternalWikipediaEntities, CulturalEntityData } from './services/cultureApi';
 import { Search, Menu, X, ExternalLink, Sparkles, Image as ImageIcon } from 'lucide-react';
 import './App.css';
@@ -23,6 +24,9 @@ export function App() {
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [selectedEraId, setSelectedEraId] = useState<string | null>(null);
 
+  // Version tick to trigger dataset reload when user adds/deletes artists
+  const [artistVersion, setArtistVersion] = useState<number>(0);
+
   // Local Timeline Filters state
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedNationality, setSelectedNationality] = useState<string>('');
@@ -30,6 +34,7 @@ export function App() {
   const [topMastersOnly, setTopMastersOnly] = useState<boolean>(false);
   const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isAddArtistOpen, setIsAddArtistOpen] = useState<boolean>(false);
 
   // Upper Bar Global Search state
   const [globalQuery, setGlobalQuery] = useState<string>('');
@@ -48,7 +53,11 @@ export function App() {
   const [favoritesCount, setFavoritesCount] = useState<number>(0);
 
   const allEras = useMemo(() => loadEras(), []);
-  const allArtists = useMemo(() => loadArtists(), []);
+
+  // Reload artists dynamically whenever artistVersion changes
+  const allArtists = useMemo(() => {
+    return loadArtists();
+  }, [artistVersion]);
 
   // Filter items by discipline
   const eras = useMemo(() => allEras.filter(e => e.discipline === activeDiscipline), [allEras, activeDiscipline]);
@@ -130,6 +139,12 @@ export function App() {
     setSelectedCentury('');
     setTopMastersOnly(false);
     setFavoritesOnly(false);
+  };
+
+  const handleRemoveArtist = (artistId: string) => {
+    deleteCustomArtist(artistId);
+    setArtistVersion(v => v + 1);
+    setSelectedArtist(null);
   };
 
   const activeStudiedCount = Object.keys(studiedWorksMap).length;
@@ -344,6 +359,7 @@ export function App() {
             onClose={() => setSelectedArtist(null)}
             onSelectArtist={setSelectedArtist}
             onLearningProgressUpdate={handleLearningProgressUpdate}
+            onRemoveArtist={handleRemoveArtist}
           />
         )}
       </main>
@@ -375,6 +391,20 @@ export function App() {
         </div>
       )}
 
+      {/* Add Custom Master Modal */}
+      <AddArtistModal
+        isOpen={isAddArtistOpen}
+        lang={lang}
+        eras={allEras}
+        onClose={() => setIsAddArtistOpen(false)}
+        onArtistAdded={(newArtist) => {
+          setArtistVersion(v => v + 1);
+          if (newArtist.discipline !== activeDiscipline) setActiveDiscipline(newArtist.discipline);
+          setViewMode('timeline');
+          setSelectedArtist(newArtist);
+        }}
+      />
+
       {/* Hamburger All-in-One Slide Drawer */}
       <HamburgerMenu
         isOpen={isHamburgerOpen}
@@ -394,6 +424,7 @@ export function App() {
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenSearch={() => {}}
         onOpenExplore={() => setViewMode('explore')}
+        onOpenAddArtist={() => setIsAddArtistOpen(true)}
       />
 
       {/* Auth Modal & Profile Drawer */}

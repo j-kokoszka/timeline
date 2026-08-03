@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { X, ExternalLink, Star, Heart, Image as ImageIcon, BookOpen, Layers, CheckCircle2 } from 'lucide-react';
+import { X, ExternalLink, Star, Heart, Image as ImageIcon, BookOpen, Layers, CheckCircle2, Trash2 } from 'lucide-react';
 import { Artist, Era, Language, ArtworkEntry } from '../../types/timeline';
 import { getLocalizedString, getUIText } from '../../lib/i18n';
 import { fetchCulturalEntityData, fetchArtworkData, CulturalEntityData, ArtworkData } from '../../services/cultureApi';
-import { getFavorites, toggleFavorite, getUserRatings, setUserRating, getArtworkRatings, setArtworkRating } from '../../services/userStorage';
+import { getFavorites, toggleFavorite, getUserRatings, setUserRating, getUserArtworkRatings, setUserArtworkRating } from '../../services/userStorage';
 import { getStudiedWorks, toggleWorkStudied } from '../../services/cloudSync';
 import './ArtistPanel.css';
 
@@ -15,6 +15,7 @@ interface ArtistPanelProps {
   onClose: () => void;
   onSelectArtist: (artist: Artist) => void;
   onLearningProgressUpdate?: () => void;
+  onRemoveArtist?: (artistId: string) => void;
 }
 
 export const ArtistPanel: React.FC<ArtistPanelProps> = ({
@@ -24,7 +25,8 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
   lang,
   onClose,
   onSelectArtist,
-  onLearningProgressUpdate
+  onLearningProgressUpdate,
+  onRemoveArtist
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'catalog'>('overview');
   const [liveData, setLiveData] = useState<CulturalEntityData | null>(null);
@@ -86,7 +88,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
     const ratings = getUserRatings();
     setUserStars(ratings[artist.id] || 0);
 
-    const artRatings = getArtworkRatings();
+    const artRatings = getUserArtworkRatings();
     setArtworkRatingsState(artRatings);
 
     const studied = getStudiedWorks();
@@ -108,7 +110,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
   };
 
   const handleRateArtwork = (workTitle: string, star: number) => {
-    const updatedScore = setArtworkRating(workTitle, star);
+    const updatedScore = setUserArtworkRating(workTitle, star);
     setArtworkRatingsState(prev => {
       const copy = { ...prev };
       if (updatedScore === 0) {
@@ -163,6 +165,21 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
           </div>
 
           <div className="header-action-btns">
+            {onRemoveArtist && (
+              <button
+                className="close-btn"
+                onClick={() => {
+                  if (confirm(lang === 'pl' ? `Usuąć ${artistName} z osi czasu?` : `Remove ${artistName} from your timeline?`)) {
+                    onRemoveArtist(artist.id);
+                    onClose();
+                  }
+                }}
+                title={lang === 'pl' ? 'Usuń z Osi Czasu' : 'Remove from Timeline'}
+                style={{ color: '#ef4444' }}
+              >
+                <Trash2 size={18} />
+              </button>
+            )}
             <button
               className={`fav-btn ${isFavorite ? 'active' : ''}`}
               onClick={handleToggleFav}
