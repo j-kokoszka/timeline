@@ -60,6 +60,11 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
     const id = entity.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
     const detected = autoDetectArtistDetails(entity.title, entity.summary, allEras);
 
+    // Prepend real discipline label if it differs from the timeline discipline
+    const bioPrefix = detected.realDiscipline !== 'Painting'
+      ? `[${detected.realDiscipline}] `
+      : '';
+
     const newArtist: Artist = {
       id,
       name: entity.title,
@@ -68,7 +73,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
       birthYear: detected.birthYear,
       deathYear: detected.deathYear,
       nationality: 'Global',
-      bio: entity.summary || '',
+      bio: bioPrefix + (entity.summary || ''),
       impactScore: 9.0,
       notableWorks: [],
       catalog: [],

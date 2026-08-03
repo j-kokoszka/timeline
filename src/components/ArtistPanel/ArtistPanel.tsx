@@ -138,7 +138,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
 
   return (
     <>
-      <div className="artist-panel">
+      <div className="artist-panel" onWheel={(e) => e.stopPropagation()}>
         {/* Header with Artist Avatar & Name */}
         <div className="panel-header">
           <div className="artist-header-row">

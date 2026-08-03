@@ -172,22 +172,29 @@ export function autoDetectArtistDetails(title: string, summary: string | null, a
   birthYear: number;
   deathYear: number;
   discipline: Discipline;
+  realDiscipline: string;
   eraId: string;
 } {
   const text = `${title} ${summary || ''}`.toLowerCase();
 
   // 1. Detect Discipline from content
-  let discipline: Discipline = 'painting';
+  let detectedDiscipline: Discipline = 'painting';
+  let detectedLabel = 'Painting';
   if (/composer|music|opera|symphony|orchestra|choir|piano|violin|moniuszko|chopin|bach|beethoven|mozart|tchaikovsky|liszt/i.test(text)) {
-    discipline = 'music';
+    detectedDiscipline = 'music';
+    detectedLabel = 'Music / Composer';
   } else if (/philosopher|ethics|logic|metaphysics|epistemology|nietzsche|kant|descartes|plato|aristotle/i.test(text)) {
-    discipline = 'philosophy';
+    detectedDiscipline = 'philosophy';
+    detectedLabel = 'Philosophy';
   } else if (/architect|building|cathedral|basilica|structure|palace|corbusier|brunelleschi|gaudi/i.test(text)) {
-    discipline = 'architecture';
-  } else if (/sculptor|statue|marble|bronze|bust|relief|michelangelo|rodin|bernini|canova/i.test(text)) {
-    discipline = 'sculpture';
+    detectedDiscipline = 'architecture';
+    detectedLabel = 'Architecture';
+  } else if (/sculptor|statue|marble|bronze|bust|relief|rodin|bernini|canova/i.test(text)) {
+    detectedDiscipline = 'sculpture';
+    detectedLabel = 'Sculpture';
   } else if (/poet|novelist|playwright|writer|literature|prose|dante|shakespeare|goethe|mickiewicz|słowacki/i.test(text)) {
-    discipline = 'literature';
+    detectedDiscipline = 'literature';
+    detectedLabel = 'Literature';
   }
 
   // 2. Extract Lifespan Years via RegEx
@@ -207,11 +214,10 @@ export function autoDetectArtistDetails(title: string, summary: string | null, a
   }
 
   // 3. Check if eras exist for the detected discipline
-  const disciplineEras = allEras.filter(e => e.discipline === discipline);
+  const disciplineEras = allEras.filter(e => e.discipline === detectedDiscipline);
 
-  // If no eras exist for the detected discipline, fall back to 'painting' for timeline placement
-  // (currently only painting eras are defined in the data)
-  const effectiveDiscipline: Discipline = disciplineEras.length > 0 ? discipline : 'painting';
+  // Always use 'painting' for timeline placement since only painting eras exist currently
+  const effectiveDiscipline: Discipline = disciplineEras.length > 0 ? detectedDiscipline : 'painting';
   const searchEras = disciplineEras.length > 0 ? disciplineEras : allEras.filter(e => e.discipline === 'painting');
 
   // 4. Match Era by birth year
@@ -224,6 +230,7 @@ export function autoDetectArtistDetails(title: string, summary: string | null, a
     birthYear,
     deathYear,
     discipline: effectiveDiscipline,
+    realDiscipline: detectedLabel,
     eraId: matchedEra ? matchedEra.id : 'modern-contemporary-macro'
   };
 }
