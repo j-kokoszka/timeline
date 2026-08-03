@@ -12,7 +12,7 @@ import { getUIText } from './lib/i18n';
 import { getCurrentUser, supabase } from './lib/supabase';
 import { getStudiedWorks, syncUserDataToCloud } from './services/cloudSync';
 import { getFavorites } from './services/userStorage';
-import { Search, Menu, Home, Compass } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import './App.css';
 
 export function App() {
@@ -107,29 +107,22 @@ export function App() {
 
   return (
     <div className="app-container">
-      {/* Header with Navigation between Home & Timeline */}
+      {/* Clean Uncluttered Header */}
       <header className="app-header">
         <div className="header-left">
-          <h1 className="brand-title" style={{ cursor: 'pointer' }} onClick={() => setViewMode('home')}>
+          <h1
+            className="brand-title"
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              setViewMode('home');
+              setSelectedArtist(null);
+              setSelectedEraId(null);
+            }}
+            title={lang === 'pl' ? 'Wróć do strony głównej' : 'Go to Home Page'}
+          >
             {getUIText('brandTitle', lang)}
-            <span className="brand-subtitle">{getUIText('brandTagline', lang)}</span>
+            <span className="brand-subtitle">{getUIText('brandTagline', lang)} • {getUIText(activeDiscipline as any, lang)}</span>
           </h1>
-
-          {/* View Mode Navigation Tabs */}
-          <nav className="discipline-tabs" style={{ marginLeft: 16 }}>
-            <button
-              className={`tab-btn ${viewMode === 'home' ? 'active' : ''}`}
-              onClick={() => setViewMode('home')}
-            >
-              <Home size={14} style={{ display: 'inline', marginRight: 4 }} /> {lang === 'pl' ? 'Strona Główna' : 'Home'}
-            </button>
-            <button
-              className={`tab-btn ${viewMode === 'timeline' ? 'active' : ''}`}
-              onClick={() => setViewMode('timeline')}
-            >
-              <Compass size={14} style={{ display: 'inline', marginRight: 4 }} /> {lang === 'pl' ? 'Oś Czasu' : 'Timeline'}
-            </button>
-          </nav>
         </div>
 
         <div className="header-actions">
