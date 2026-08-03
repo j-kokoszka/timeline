@@ -135,16 +135,29 @@ export function App() {
           <button
             className="auth-header-btn"
             onClick={() => setIsAuthModalOpen(true)}
-            title={currentUser ? currentUser.email || 'User Profile' : 'Sign In'}
+            title={currentUser ? (currentUser.user_metadata?.full_name || currentUser.email || 'User Profile') : 'Sign In'}
           >
             {currentUser ? (
-              <div className="user-avatar-circle">
-                {currentUser.email?.charAt(0).toUpperCase() || 'U'}
-              </div>
+              currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture ? (
+                <img
+                  src={currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture}
+                  alt={currentUser.user_metadata?.full_name || 'User'}
+                  className="user-avatar-circle"
+                  style={{ width: 22, height: 22, objectFit: 'cover' }}
+                />
+              ) : (
+                <div className="user-avatar-circle">
+                  {(currentUser.user_metadata?.full_name || currentUser.email || 'U').charAt(0).toUpperCase()}
+                </div>
+              )
             ) : (
               <UserIcon size={16} />
             )}
-            <span>{currentUser ? currentUser.email?.split('@')[0] : (lang === 'pl' ? 'Zaloguj' : 'Sign In')}</span>
+            <span>
+              {currentUser
+                ? (currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0])
+                : (lang === 'pl' ? 'Zaloguj' : 'Sign In')}
+            </span>
           </button>
 
           {/* Language Switcher Button */}

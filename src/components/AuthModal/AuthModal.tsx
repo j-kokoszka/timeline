@@ -24,6 +24,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ user, lang, onClose }) => 
     onClose();
   };
 
+  const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+
   return (
     <div className="auth-modal-overlay" onClick={onClose}>
       <div className="auth-modal-card" onClick={(e) => e.stopPropagation()}>
@@ -33,15 +36,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({ user, lang, onClose }) => 
 
         {user ? (
           <>
-            <div className="user-avatar-circle" style={{ width: 54, height: 54, fontSize: 22, margin: '0 auto' }}>
-              {user.email?.charAt(0).toUpperCase() || 'U'}
-            </div>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="user-avatar-circle"
+                style={{ width: 58, height: 58, margin: '0 auto', objectFit: 'cover' }}
+              />
+            ) : (
+              <div className="user-avatar-circle" style={{ width: 54, height: 54, fontSize: 22, margin: '0 auto' }}>
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <h3 className="auth-modal-title">
-              {lang === 'pl' ? 'Witaj' : 'Welcome'}, {user.email?.split('@')[0]}!
+              {lang === 'pl' ? 'Witaj' : 'Welcome'}, {displayName}!
             </h3>
             <p className="auth-modal-subtitle">
               {lang === 'pl'
-                ? 'Twoje oceny, ulubione twórcy i postępy w nauce sztuki są bezpiecznie zsynchronizowane w chmurze.'
+                ? 'Twoje oceny, ulubieni twórcy i postępy w nauce sztuki są bezpiecznie zsynchronizowane w chmurze.'
                 : 'Your ratings, favorite masters, and art learning progress are safely synced to the cloud.'}
             </p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, color: '#10b981', fontSize: 13, fontWeight: 600 }}>
