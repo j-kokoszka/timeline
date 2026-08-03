@@ -33,6 +33,32 @@
   padding-left: 12px;
 }
 
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-header-btn:hover {
+  border-color: var(--accent-gold);
+  background: rgba(217, 167, 74, 0.12);
+}
+
 .header-actions {
   display: flex;
   align-items: center;

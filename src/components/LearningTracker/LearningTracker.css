@@ -1,0 +1,33 @@
+.learning-tracker-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(217, 167, 74, 0.08);
+  border: 1px solid rgba(217, 167, 74, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.learning-tracker-badge:hover {
+  background: rgba(217, 167, 74, 0.18);
+  border-color: var(--accent-gold);
+}
+
+.learning-progress-bar-bg {
+  width: 60px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.learning-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-gold);
+  transition: width 0.3s ease;
+}

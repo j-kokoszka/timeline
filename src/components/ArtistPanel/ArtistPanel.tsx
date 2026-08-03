@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { X, ExternalLink, Star, Heart, Image as ImageIcon, BookOpen, Layers } from 'lucide-react';
+import { X, ExternalLink, Star, Heart, Image as ImageIcon, BookOpen, Layers, CheckCircle2 } from 'lucide-react';
 import { Artist, Era, Language, ArtworkEntry } from '../../types/timeline';
 import { getLocalizedString, getUIText } from '../../lib/i18n';
 import { fetchCulturalEntityData, fetchArtworkData, CulturalEntityData, ArtworkData } from '../../services/cultureApi';
 import { getFavorites, toggleFavorite, getUserRatings, setUserRating, getArtworkRatings, setArtworkRating } from '../../services/userStorage';
+import { getStudiedWorks, toggleWorkStudied } from '../../services/cloudSync';
 import './ArtistPanel.css';
 
 interface ArtistPanelProps {
@@ -13,6 +14,7 @@ interface ArtistPanelProps {
   lang: Language;
   onClose: () => void;
   onSelectArtist: (artist: Artist) => void;
+  onLearningProgressUpdate?: () => void;
 }
 
 export const ArtistPanel: React.FC<ArtistPanelProps> = ({
@@ -21,7 +23,8 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
   allArtists,
   lang,
   onClose,
-  onSelectArtist
+  onSelectArtist,
+  onLearningProgressUpdate
 }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'catalog'>('overview');
   const [liveData, setLiveData] = useState<CulturalEntityData | null>(null);
@@ -32,6 +35,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [userStars, setUserStars] = useState<number>(0);
   const [artworkRatings, setArtworkRatingsState] = useState<Record<string, number>>({});
+  const [studiedWorks, setStudiedWorksState] = useState<Record<string, any>>({});
 
   const era = eras.find(e => e.id === artist.era);
   const eraColor = era ? era.color : '#3b82f6';
@@ -75,7 +79,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
       });
     });
 
-    // Check user favorites & ratings
+    // Check user favorites, ratings, and learning progress
     const favs = getFavorites();
     setIsFavorite(favs.includes(artist.id));
 
@@ -84,6 +88,9 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
 
     const artRatings = getArtworkRatings();
     setArtworkRatingsState(artRatings);
+
+    const studied = getStudiedWorks();
+    setStudiedWorksState(studied);
 
     return () => {
       isMounted = false;
@@ -111,6 +118,13 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
       }
       return copy;
     });
+  };
+
+  const handleToggleStudied = (e: React.MouseEvent, workTitle: string) => {
+    e.stopPropagation();
+    toggleWorkStudied(workTitle, artist.id, artist.era);
+    setStudiedWorksState(getStudiedWorks());
+    if (onLearningProgressUpdate) onLearningProgressUpdate();
   };
 
   const findArtistName = (id: string) => {
@@ -251,6 +265,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
                   {artist.notableWorks.map((work) => {
                     const art = artworksMap[work];
                     const workRating = artworkRatings[work] || 0;
+                    const isStudied = Boolean(studiedWorks[work]);
                     return (
                       <div
                         key={work}
@@ -265,11 +280,20 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
                           </div>
                         )}
                         <span className="artwork-card-title">{work}</span>
-                        {workRating > 0 && (
-                          <span style={{ fontSize: '10px', color: '#eab308', fontWeight: 700 }}>
-                            ★ {workRating}/5
-                          </span>
-                        )}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                          {workRating > 0 && (
+                            <span style={{ fontSize: '10px', color: '#eab308', fontWeight: 700 }}>
+                              ★ {workRating}/5
+                            </span>
+                          )}
+                          <button
+                            onClick={(e) => handleToggleStudied(e, work)}
+                            title={isStudied ? 'Marked as Mastered' : 'Mark as Studied'}
+                            style={{ background: 'none', border: 'none', color: isStudied ? '#10b981' : 'var(--text-muted)', cursor: 'pointer', padding: 2 }}
+                          >
+                            <CheckCircle2 size={14} />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -381,6 +405,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
                 const workTitle = lang === 'pl' && item.titlePl ? item.titlePl : item.title;
                 const location = lang === 'pl' && item.locationPl ? item.locationPl : item.location;
                 const rating = artworkRatings[item.title] || 0;
+                const isStudied = Boolean(studiedWorks[item.title]);
 
                 return (
                   <div
@@ -415,11 +440,31 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
                       {location && (
                         <div className="catalog-item-meta">🏛️ {location}</div>
                       )}
-                      {rating > 0 && (
-                        <div style={{ fontSize: '11px', color: '#eab308', fontWeight: 700, marginTop: '2px' }}>
-                          ★ Your Rating: {rating}/5
-                        </div>
-                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                        {rating > 0 && (
+                          <div style={{ fontSize: '11px', color: '#eab308', fontWeight: 700 }}>
+                            ★ Rating: {rating}/5
+                          </div>
+                        )}
+                        <button
+                          onClick={(e) => handleToggleStudied(e, item.title)}
+                          style={{
+                            background: isStudied ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+                            border: `1px solid ${isStudied ? '#10b981' : 'var(--border-subtle)'}`,
+                            color: isStudied ? '#10b981' : 'var(--text-muted)',
+                            borderRadius: 4,
+                            padding: '2px 8px',
+                            fontSize: 11,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4
+                          }}
+                        >
+                          <CheckCircle2 size={12} /> {isStudied ? (lang === 'pl' ? 'Opanowane' : 'Mastered') : (lang === 'pl' ? 'Oznacz jako wyuczone' : 'Mark Studied')}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

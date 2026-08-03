@@ -1,188 +1,211 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Palette, Music, BookOpen, Sparkles, Landmark, Box, Globe, Search } from 'lucide-react';
-import { loadArtists, loadEras } from './lib/dataLoader';
-import { Artist, Era, Discipline, Language } from './types/timeline';
+import { useState, useMemo, useEffect } from 'react';
+import { User } from '@supabase/supabase-js';
 import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
+import { AuthModal } from './components/AuthModal/AuthModal';
+import { LearningTracker } from './components/LearningTracker/LearningTracker';
+import { loadEras, loadArtists } from './lib/dataLoader';
+import { Artist, Discipline, Language, Era } from './types/timeline';
 import { getUIText } from './lib/i18n';
+import { getCurrentUser, supabase } from './lib/supabase';
+import { getStudiedWorks, syncUserDataToCloud } from './services/cloudSync';
+import { Search, Globe, User as UserIcon } from 'lucide-react';
 import './App.css';
 
-export const App: React.FC = () => {
+export function App() {
+  const [activeDiscipline, setActiveDiscipline] = useState<Discipline>('painting');
+  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [selectedEraId, setSelectedEraId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedNationality, setSelectedNationality] = useState<string>('');
+  const [selectedCentury, setSelectedCentury] = useState<string>('');
+  const [topMastersOnly, setTopMastersOnly] = useState<boolean>(false);
+  const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [lang, setLang] = useState<Language>('en');
+
+  // Auth & Learning Progress state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [studiedWorksMap, setStudiedWorksMap] = useState<Record<string, any>>({});
+
   const allEras = useMemo(() => loadEras(), []);
   const allArtists = useMemo(() => loadArtists(), []);
 
-  const [activeDiscipline, setActiveDiscipline] = useState<Discipline>('painting');
-  const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
-  const [selectedEra, setSelectedEra] = useState<Era | null>(null);
-  const [lang, setLang] = useState<Language>('en');
+  // Filter items by discipline
+  const eras = useMemo(() => allEras.filter(e => e.discipline === activeDiscipline), [allEras, activeDiscipline]);
+  const artists = useMemo(() => allArtists.filter(a => a.discipline === activeDiscipline), [allArtists, activeDiscipline]);
 
-  // Search, CultureDB Top Masters, and Multi-Filter State
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedNationality, setSelectedNationality] = useState('');
-  const [selectedCentury, setSelectedCentury] = useState('');
-  const [onlyTopMasters, setOnlyTopMasters] = useState(false);
-  const [onlyFavorites, setOnlyFavorites] = useState(false);
+  // Total count of masterworks across current dataset
+  const totalMasterworksCount = useMemo(() => {
+    return allArtists.reduce((acc, a) => acc + a.notableWorks.length, 0);
+  }, [allArtists]);
 
-  // Hotkey listener for Ctrl+K or / to open search bar
+  // Load Auth User session & Learning progress
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsSearchOpen(prev => !prev);
-      } else if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'SELECT') {
-        e.preventDefault();
-        setIsSearchOpen(true);
-      } else if (e.key === 'Escape') {
-        setIsSearchOpen(false);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    getCurrentUser().then(user => {
+      setCurrentUser(user);
+      if (user) syncUserDataToCloud();
+    });
+
+    setStudiedWorksMap(getStudiedWorks());
+
+    if (supabase) {
+      const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
+        const user = session?.user || null;
+        setCurrentUser(user);
+        if (user) syncUserDataToCloud();
+      });
+
+      return () => {
+        authListener.subscription.unsubscribe();
+      };
+    }
   }, []);
 
-  const filteredEras = useMemo(() => {
-    return allEras.filter(e => e.discipline === activeDiscipline || e.discipline === 'general');
-  }, [allEras, activeDiscipline]);
-
-  const filteredArtists = useMemo(() => {
-    return allArtists.filter(a => a.discipline === activeDiscipline);
-  }, [allArtists, activeDiscipline]);
-
-  const handleSelectEra = (era: Era | null) => {
-    setSelectedEra(era);
-    if (era) {
-      setSelectedArtist(null);
-    }
+  const handleLearningProgressUpdate = () => {
+    setStudiedWorksMap(getStudiedWorks());
   };
 
-  const handleSelectArtist = (artist: Artist | null) => {
-    setSelectedArtist(artist);
-    if (artist) {
-      setSelectedEra(null);
+  const handleToggleLang = () => {
+    setLang(prev => (prev === 'en' ? 'pl' : 'en'));
+  };
+
+  const handleSelectArtistFromSearch = (artist: Artist) => {
+    if (artist.discipline !== activeDiscipline) {
+      setActiveDiscipline(artist.discipline);
     }
+    setSelectedArtist(artist);
+  };
+
+  const handleSelectEraFromSearch = (era: Era) => {
+    if (era.discipline !== activeDiscipline) {
+      setActiveDiscipline(era.discipline);
+    }
+    setSelectedEraId(era.id);
   };
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedNationality('');
     setSelectedCentury('');
-    setOnlyTopMasters(false);
-    setOnlyFavorites(false);
+    setTopMastersOnly(false);
+    setFavoritesOnly(false);
   };
 
-  const hasActiveFilters = Boolean(searchQuery || selectedNationality || selectedCentury || onlyTopMasters || onlyFavorites);
-
-  const disciplinesConfig: { id: Discipline; labelKey: keyof typeof import('./lib/i18n').translations.en; icon: React.ReactNode }[] = [
-    { id: 'painting', labelKey: 'painting', icon: <Palette size={15} /> },
-    { id: 'sculpture', labelKey: 'sculpture', icon: <Box size={15} /> },
-    { id: 'architecture', labelKey: 'architecture', icon: <Landmark size={15} /> },
-    { id: 'philosophy', labelKey: 'philosophy', icon: <Sparkles size={15} /> },
-    { id: 'music', labelKey: 'music', icon: <Music size={15} /> },
-    { id: 'literature', labelKey: 'literature', icon: <BookOpen size={15} /> }
-  ];
+  const activeStudiedCount = Object.keys(studiedWorksMap).length;
 
   return (
     <div className="app-container">
       <header className="app-header">
-        <div className="brand-section">
-          <h1 className="brand-title">{getUIText('brandTitle', lang)}</h1>
-          <span className="brand-tagline">{getUIText('brandTagline', lang)}</span>
+        <div className="header-left">
+          <h1 className="brand-title">
+            {getUIText('brandTitle', lang)}
+            <span className="brand-subtitle">{getUIText('brandTagline', lang)}</span>
+          </h1>
+
+          <nav className="discipline-tabs">
+            {(['painting', 'sculpture', 'architecture', 'philosophy', 'music', 'literature'] as Discipline[]).map(disc => (
+              <button
+                key={disc}
+                className={`tab-btn ${activeDiscipline === disc ? 'active' : ''}`}
+                onClick={() => {
+                  setActiveDiscipline(disc);
+                  setSelectedArtist(null);
+                  setSelectedEraId(null);
+                }}
+              >
+                {getUIText(disc as any, lang)}
+              </button>
+            ))}
+          </nav>
         </div>
 
         <div className="header-actions">
-          <nav className="discipline-filters">
-            {disciplinesConfig.map(disc => {
-              const isActive = activeDiscipline === disc.id;
-              const hasData = disc.id === 'painting';
+          {/* Learning Tracker Widget */}
+          <LearningTracker
+            studiedCount={activeStudiedCount}
+            totalWorksCount={totalMasterworksCount}
+            lang={lang}
+            onClick={() => setIsAuthModalOpen(true)}
+          />
 
-              return (
-                <button
-                  key={disc.id}
-                  className={`filter-btn ${isActive ? 'active' : ''} ${!hasData && !isActive ? 'inactive-discipline' : ''}`}
-                  onClick={() => {
-                    setActiveDiscipline(disc.id);
-                    setSelectedArtist(null);
-                    setSelectedEra(null);
-                  }}
-                  title={hasData ? getUIText(disc.labelKey, lang) : `${getUIText(disc.labelKey, lang)} (${getUIText('soon', lang)})`}
-                >
-                  {disc.icon} {getUIText(disc.labelKey, lang)}
-                  {!hasData && <span className="badge-coming-soon">{getUIText('soon', lang)}</span>}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Search & Filter Toggle Button */}
+          {/* User Auth Profile Button */}
           <button
-            className={`header-search-btn ${isSearchOpen || hasActiveFilters ? 'active' : ''}`}
-            onClick={() => setIsSearchOpen(prev => !prev)}
-            title={getUIText('searchHint', lang)}
+            className="auth-header-btn"
+            onClick={() => setIsAuthModalOpen(true)}
+            title={currentUser ? currentUser.email || 'User Profile' : 'Sign In'}
           >
-            <Search size={14} />
-            <span>Search</span>
-            {hasActiveFilters && <span className="active-filter-dot" />}
+            {currentUser ? (
+              <div className="user-avatar-circle">
+                {currentUser.email?.charAt(0).toUpperCase() || 'U'}
+              </div>
+            ) : (
+              <UserIcon size={16} />
+            )}
+            <span>{currentUser ? currentUser.email?.split('@')[0] : (lang === 'pl' ? 'Zaloguj' : 'Sign In')}</span>
           </button>
 
-          {/* Language Switcher Toggle */}
-          <div className="lang-switcher">
-            <button
-              className={`lang-btn ${lang === 'en' ? 'active' : ''}`}
-              onClick={() => setLang('en')}
-              title="Switch to English"
-            >
-              <Globe size={13} /> EN
-            </button>
-            <button
-              className={`lang-btn ${lang === 'pl' ? 'active' : ''}`}
-              onClick={() => setLang('pl')}
-              title="Przełącz na Polski"
-            >
-              PL
-            </button>
-          </div>
+          {/* Language Switcher Button */}
+          <button
+            className="lang-toggle-btn"
+            onClick={handleToggleLang}
+            title={lang === 'en' ? 'Switch to Polish' : 'Przełącz na angielski'}
+          >
+            <Globe size={16} />
+            <span>{lang.toUpperCase()}</span>
+          </button>
+
+          {/* Toggleable Search Button */}
+          <button
+            className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
+            onClick={() => setIsSearchOpen(prev => !prev)}
+            title="Search & Filters (Ctrl+K)"
+          >
+            <Search size={16} />
+            <span>Search</span>
+          </button>
         </div>
       </header>
 
-      <main className="app-main">
-        {/* Toggleable Universal Search & Multi-Filter Floating Bar */}
-        {isSearchOpen && (
-          <SearchFilter
-            artists={filteredArtists}
-            eras={filteredEras}
-            lang={lang}
-            searchQuery={searchQuery}
-            selectedNationality={selectedNationality}
-            selectedCentury={selectedCentury}
-            onlyTopMasters={onlyTopMasters}
-            onlyFavorites={onlyFavorites}
-            onSearchChange={setSearchQuery}
-            onNationalityChange={setSelectedNationality}
-            onCenturyChange={setSelectedCentury}
-            onTopMastersChange={setOnlyTopMasters}
-            onFavoritesChange={setOnlyFavorites}
-            onSelectArtist={handleSelectArtist}
-            onSelectEra={handleSelectEra}
-            onResetFilters={handleResetFilters}
-            onClose={() => setIsSearchOpen(false)}
-          />
-        )}
-
-        <Timeline
-          eras={filteredEras}
-          artists={filteredArtists}
-          selectedArtist={selectedArtist}
-          selectedEra={selectedEra}
+      {/* Floating Toggleable Search & Filter Bar */}
+      {isSearchOpen && (
+        <SearchFilter
+          artists={artists}
+          eras={eras}
           lang={lang}
           searchQuery={searchQuery}
           selectedNationality={selectedNationality}
           selectedCentury={selectedCentury}
-          onlyTopMasters={onlyTopMasters}
-          onlyFavorites={onlyFavorites}
-          onSelectArtist={handleSelectArtist}
-          onSelectEra={handleSelectEra}
+          onlyTopMasters={topMastersOnly}
+          onlyFavorites={favoritesOnly}
+          onSearchChange={setSearchQuery}
+          onNationalityChange={setSelectedNationality}
+          onCenturyChange={setSelectedCentury}
+          onTopMastersChange={setTopMastersOnly}
+          onFavoritesChange={setFavoritesOnly}
+          onSelectArtist={handleSelectArtistFromSearch}
+          onSelectEra={handleSelectEraFromSearch}
+          onResetFilters={handleResetFilters}
+          onClose={() => setIsSearchOpen(false)}
+        />
+      )}
+
+      <main className="app-main">
+        <Timeline
+          eras={eras}
+          artists={artists}
+          selectedArtist={selectedArtist}
+          selectedEra={eras.find(e => e.id === selectedEraId) || null}
+          searchQuery={searchQuery}
+          selectedNationality={selectedNationality}
+          selectedCentury={selectedCentury}
+          onlyTopMasters={topMastersOnly}
+          onlyFavorites={favoritesOnly}
+          lang={lang}
+          onSelectArtist={setSelectedArtist}
+          onSelectEra={(era) => setSelectedEraId(era ? era.id : null)}
         />
 
         {selectedArtist && (
@@ -192,12 +215,22 @@ export const App: React.FC = () => {
             allArtists={allArtists}
             lang={lang}
             onClose={() => setSelectedArtist(null)}
-            onSelectArtist={handleSelectArtist}
+            onSelectArtist={setSelectedArtist}
+            onLearningProgressUpdate={handleLearningProgressUpdate}
           />
         )}
       </main>
+
+      {/* Auth Modal & Profile Drawer */}
+      {isAuthModalOpen && (
+        <AuthModal
+          user={currentUser}
+          lang={lang}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+      )}
     </div>
   );
-};
+}
 
 export default App;
