@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
+import { HomePage } from './components/HomePage/HomePage';
 import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
@@ -10,10 +11,12 @@ import { Artist, Discipline, Language, Era } from './types/timeline';
 import { getUIText } from './lib/i18n';
 import { getCurrentUser, supabase } from './lib/supabase';
 import { getStudiedWorks, syncUserDataToCloud } from './services/cloudSync';
-import { Search, Menu } from 'lucide-react';
+import { getFavorites } from './services/userStorage';
+import { Search, Menu, Home, Compass } from 'lucide-react';
 import './App.css';
 
 export function App() {
+  const [viewMode, setViewMode] = useState<'home' | 'timeline'>('home');
   const [activeDiscipline, setActiveDiscipline] = useState<Discipline>('painting');
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [selectedEraId, setSelectedEraId] = useState<string | null>(null);
@@ -30,6 +33,7 @@ export function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [studiedWorksMap, setStudiedWorksMap] = useState<Record<string, any>>({});
+  const [favoritesCount, setFavoritesCount] = useState<number>(0);
 
   const allEras = useMemo(() => loadEras(), []);
   const allArtists = useMemo(() => loadArtists(), []);
@@ -51,6 +55,7 @@ export function App() {
     });
 
     setStudiedWorksMap(getStudiedWorks());
+    setFavoritesCount(getFavorites().length);
 
     if (supabase) {
       const { data: authListener } = supabase.auth.onAuthStateChange((_, session) => {
@@ -67,6 +72,7 @@ export function App() {
 
   const handleLearningProgressUpdate = () => {
     setStudiedWorksMap(getStudiedWorks());
+    setFavoritesCount(getFavorites().length);
   };
 
   const handleToggleLang = () => {
@@ -77,6 +83,7 @@ export function App() {
     if (artist.discipline !== activeDiscipline) {
       setActiveDiscipline(artist.discipline);
     }
+    setViewMode('timeline');
     setSelectedArtist(artist);
   };
 
@@ -84,6 +91,7 @@ export function App() {
     if (era.discipline !== activeDiscipline) {
       setActiveDiscipline(era.discipline);
     }
+    setViewMode('timeline');
     setSelectedEraId(era.id);
   };
 
@@ -99,13 +107,29 @@ export function App() {
 
   return (
     <div className="app-container">
-      {/* Clean & Uncluttered Header */}
+      {/* Header with Navigation between Home & Timeline */}
       <header className="app-header">
         <div className="header-left">
-          <h1 className="brand-title">
+          <h1 className="brand-title" style={{ cursor: 'pointer' }} onClick={() => setViewMode('home')}>
             {getUIText('brandTitle', lang)}
-            <span className="brand-subtitle">{getUIText('brandTagline', lang)} • {getUIText(activeDiscipline as any, lang)}</span>
+            <span className="brand-subtitle">{getUIText('brandTagline', lang)}</span>
           </h1>
+
+          {/* View Mode Navigation Tabs */}
+          <nav className="discipline-tabs" style={{ marginLeft: 16 }}>
+            <button
+              className={`tab-btn ${viewMode === 'home' ? 'active' : ''}`}
+              onClick={() => setViewMode('home')}
+            >
+              <Home size={14} style={{ display: 'inline', marginRight: 4 }} /> {lang === 'pl' ? 'Strona Główna' : 'Home'}
+            </button>
+            <button
+              className={`tab-btn ${viewMode === 'timeline' ? 'active' : ''}`}
+              onClick={() => setViewMode('timeline')}
+            >
+              <Compass size={14} style={{ display: 'inline', marginRight: 4 }} /> {lang === 'pl' ? 'Oś Czasu' : 'Timeline'}
+            </button>
+          </nav>
         </div>
 
         <div className="header-actions">
@@ -156,22 +180,43 @@ export function App() {
       )}
 
       <main className="app-main">
-        <Timeline
-          eras={eras}
-          artists={artists}
-          selectedArtist={selectedArtist}
-          selectedEra={eras.find(e => e.id === selectedEraId) || null}
-          searchQuery={searchQuery}
-          selectedNationality={selectedNationality}
-          selectedCentury={selectedCentury}
-          onlyTopMasters={topMastersOnly}
-          onlyFavorites={favoritesOnly}
-          lang={lang}
-          onSelectArtist={setSelectedArtist}
-          onSelectEra={(era) => setSelectedEraId(era ? era.id : null)}
-        />
+        {viewMode === 'home' ? (
+          <HomePage
+            user={currentUser}
+            lang={lang}
+            studiedCount={activeStudiedCount}
+            totalWorksCount={totalMasterworksCount}
+            favoritesCount={favoritesCount}
+            allArtists={allArtists}
+            onNavigateToTimeline={(disc) => {
+              if (disc) setActiveDiscipline(disc);
+              setViewMode('timeline');
+            }}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onSelectArtist={(artist) => {
+              if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+              setViewMode('timeline');
+              setSelectedArtist(artist);
+            }}
+          />
+        ) : (
+          <Timeline
+            eras={eras}
+            artists={artists}
+            selectedArtist={selectedArtist}
+            selectedEra={eras.find(e => e.id === selectedEraId) || null}
+            searchQuery={searchQuery}
+            selectedNationality={selectedNationality}
+            selectedCentury={selectedCentury}
+            onlyTopMasters={topMastersOnly}
+            onlyFavorites={favoritesOnly}
+            lang={lang}
+            onSelectArtist={setSelectedArtist}
+            onSelectEra={(era) => setSelectedEraId(era ? era.id : null)}
+          />
+        )}
 
-        {selectedArtist && (
+        {selectedArtist && viewMode === 'timeline' && (
           <ArtistPanel
             artist={selectedArtist}
             eras={allEras}
@@ -195,6 +240,7 @@ export function App() {
         onClose={() => setIsHamburgerOpen(false)}
         onSelectDiscipline={(disc) => {
           setActiveDiscipline(disc);
+          setViewMode('timeline');
           setSelectedArtist(null);
           setSelectedEraId(null);
         }}
