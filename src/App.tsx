@@ -4,13 +4,13 @@ import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
 import { AuthModal } from './components/AuthModal/AuthModal';
-import { LearningTracker } from './components/LearningTracker/LearningTracker';
+import { HamburgerMenu } from './components/HamburgerMenu/HamburgerMenu';
 import { loadEras, loadArtists } from './lib/dataLoader';
 import { Artist, Discipline, Language, Era } from './types/timeline';
 import { getUIText } from './lib/i18n';
 import { getCurrentUser, supabase } from './lib/supabase';
 import { getStudiedWorks, syncUserDataToCloud } from './services/cloudSync';
-import { Search, Globe, User as UserIcon } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import './App.css';
 
 export function App() {
@@ -23,6 +23,7 @@ export function App() {
   const [topMastersOnly, setTopMastersOnly] = useState<boolean>(false);
   const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false);
   const [lang, setLang] = useState<Language>('en');
 
   // Auth & Learning Progress state
@@ -98,86 +99,35 @@ export function App() {
 
   return (
     <div className="app-container">
+      {/* Clean & Uncluttered Header */}
       <header className="app-header">
         <div className="header-left">
           <h1 className="brand-title">
             {getUIText('brandTitle', lang)}
-            <span className="brand-subtitle">{getUIText('brandTagline', lang)}</span>
+            <span className="brand-subtitle">{getUIText('brandTagline', lang)} • {getUIText(activeDiscipline as any, lang)}</span>
           </h1>
-
-          <nav className="discipline-tabs">
-            {(['painting', 'sculpture', 'architecture', 'philosophy', 'music', 'literature'] as Discipline[]).map(disc => (
-              <button
-                key={disc}
-                className={`tab-btn ${activeDiscipline === disc ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveDiscipline(disc);
-                  setSelectedArtist(null);
-                  setSelectedEraId(null);
-                }}
-              >
-                {getUIText(disc as any, lang)}
-              </button>
-            ))}
-          </nav>
         </div>
 
         <div className="header-actions">
-          {/* Learning Tracker Widget */}
-          <LearningTracker
-            studiedCount={activeStudiedCount}
-            totalWorksCount={totalMasterworksCount}
-            lang={lang}
-            onClick={() => setIsAuthModalOpen(true)}
-          />
-
-          {/* User Auth Profile Button */}
-          <button
-            className="auth-header-btn"
-            onClick={() => setIsAuthModalOpen(true)}
-            title={currentUser ? (currentUser.user_metadata?.full_name || currentUser.email || 'User Profile') : 'Sign In'}
-          >
-            {currentUser ? (
-              currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture ? (
-                <img
-                  src={currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture}
-                  alt={currentUser.user_metadata?.full_name || 'User'}
-                  className="user-avatar-circle"
-                  style={{ width: 22, height: 22, objectFit: 'cover' }}
-                />
-              ) : (
-                <div className="user-avatar-circle">
-                  {(currentUser.user_metadata?.full_name || currentUser.email || 'U').charAt(0).toUpperCase()}
-                </div>
-              )
-            ) : (
-              <UserIcon size={16} />
-            )}
-            <span>
-              {currentUser
-                ? (currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || currentUser.email?.split('@')[0])
-                : (lang === 'pl' ? 'Zaloguj' : 'Sign In')}
-            </span>
-          </button>
-
-          {/* Language Switcher Button */}
-          <button
-            className="lang-toggle-btn"
-            onClick={handleToggleLang}
-            title={lang === 'en' ? 'Switch to Polish' : 'Przełącz na angielski'}
-          >
-            <Globe size={16} />
-            <span>{lang.toUpperCase()}</span>
-          </button>
-
-          {/* Toggleable Search Button */}
+          {/* Search Toggle Button */}
           <button
             className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
             onClick={() => setIsSearchOpen(prev => !prev)}
             title="Search & Filters (Ctrl+K)"
           >
             <Search size={16} />
-            <span>Search</span>
+            <span>{lang === 'pl' ? 'Szukaj' : 'Search'}</span>
+          </button>
+
+          {/* All-in-One Hamburger Menu Button */}
+          <button
+            className="auth-header-btn"
+            onClick={() => setIsHamburgerOpen(true)}
+            title="Open Menu"
+            style={{ background: 'rgba(217, 167, 74, 0.12)', borderColor: 'var(--accent-gold)' }}
+          >
+            <Menu size={18} color="var(--accent-gold)" />
+            <span style={{ color: 'var(--accent-gold)', fontWeight: 700 }}>Menu</span>
           </button>
         </div>
       </header>
@@ -233,6 +183,25 @@ export function App() {
           />
         )}
       </main>
+
+      {/* Hamburger All-in-One Slide Drawer */}
+      <HamburgerMenu
+        isOpen={isHamburgerOpen}
+        activeDiscipline={activeDiscipline}
+        lang={lang}
+        user={currentUser}
+        studiedCount={activeStudiedCount}
+        totalWorksCount={totalMasterworksCount}
+        onClose={() => setIsHamburgerOpen(false)}
+        onSelectDiscipline={(disc) => {
+          setActiveDiscipline(disc);
+          setSelectedArtist(null);
+          setSelectedEraId(null);
+        }}
+        onToggleLang={handleToggleLang}
+        onOpenAuth={() => setIsAuthModalOpen(true)}
+        onOpenSearch={() => setIsSearchOpen(true)}
+      />
 
       {/* Auth Modal & Profile Drawer */}
       {isAuthModalOpen && (

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
-import { ZoomIn, ZoomOut, RotateCcw, Layers, X } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react';
 import { Artist, Era, Language } from '../../types/timeline';
 import { assignArtistRows, calculateEraLayout, calculateTimelineBounds, formatYear } from '../../lib/layoutMath';
 import { getLocalizedString, getUIText } from '../../lib/i18n';
@@ -111,15 +111,6 @@ export const Timeline: React.FC<TimelineProps> = ({
     if (transform.k < 2.8) return 2;
     return 3;
   }, [transform.k]);
-
-  const lodLabel = useMemo(() => {
-    switch (lodTier) {
-      case 1: return getUIText('lod1', lang);
-      case 2: return getUIText('lod2', lang);
-      case 3: return getUIText('lod3', lang);
-      default: return getUIText('lod1', lang);
-    }
-  }, [lodTier, lang]);
 
   // Automatic sub-row era layout
   const eraLayout = useMemo(() => calculateEraLayout(eras, lodTier, 48), [eras, lodTier]);
@@ -283,12 +274,6 @@ export const Timeline: React.FC<TimelineProps> = ({
 
   return (
     <div className="timeline-container" ref={containerRef}>
-      {/* Dynamic Semantic Zoom Level Badge */}
-      <div className="lod-badge">
-        <Layers size={15} />
-        <span>LOD {lodTier}: {lodLabel}</span>
-      </div>
-
       {/* Selected Era Info Banner */}
       {selectedEra && (
         <div className="era-info-banner">
