@@ -44,7 +44,7 @@ export const translations = {
     searchHint: 'Press Ctrl+K or / to search'
   },
   pl: {
-    brandTitle: 'AXIS CZASU',
+    brandTitle: 'OŚ CZASU',
     brandTagline: 'Historia Kultury Zachodniej',
     painting: 'Malarstwo',
     music: 'Muzyka',
