@@ -72,7 +72,8 @@ export const Timeline: React.FC<TimelineProps> = ({
 
   useEffect(() => {
     if (svgRef.current) {
-      d3.select(svgRef.current).call(zoomBehavior);
+      const initialTransform = d3.zoomIdentity.scale(2.0); // Start on Level 2 of detail
+      d3.select(svgRef.current).call(zoomBehavior).call(zoomBehavior.transform, initialTransform);
     }
   }, [zoomBehavior]);
 
@@ -91,7 +92,8 @@ export const Timeline: React.FC<TimelineProps> = ({
 
   const handleResetZoom = () => {
     if (svgRef.current) {
-      d3.select(svgRef.current).transition().duration(400).call(zoomBehavior.transform, d3.zoomIdentity);
+      const initialTransform = d3.zoomIdentity.scale(2.0);
+      d3.select(svgRef.current).transition().duration(400).call(zoomBehavior.transform, initialTransform);
     }
   };
 
@@ -108,8 +110,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Semantic Zoom Level of Detail (LOD) tier calculation
   const lodTier = useMemo(() => {
     if (transform.k < 1.4) return 1;
-    if (transform.k < 2.8) return 2;
-    return 3;
+    if (transform.k < 4.2) return 2; // Level 2 (Movements) active up to k = 4.2
+    return 3; // Level 3 (Schools) appears at k >= 4.2
   }, [transform.k]);
 
   // Automatic sub-row era layout
