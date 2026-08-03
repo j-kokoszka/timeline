@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, PlusCircle } from 'lucide-react';
 import { Artist, Discipline, Language, Era } from '../../types/timeline';
-import { fetchCulturalEntityData } from '../../services/cultureApi';
+import { fetchCulturalEntityData, autoDetectArtistDetails } from '../../services/cultureApi';
 import { saveCustomArtist, unhideArtist } from '../../services/userStorage';
 import './AddArtistModal.css';
 
@@ -39,6 +39,11 @@ export const AddArtistModal: React.FC<AddArtistModalProps> = ({
     const data = await fetchCulturalEntityData(name);
     if (data.summary) {
       setBio(data.summary);
+      const detected = autoDetectArtistDetails(name, data.summary, eras);
+      setDiscipline(detected.discipline);
+      setEraId(detected.eraId);
+      setBirthYear(detected.birthYear);
+      setDeathYear(detected.deathYear);
     }
     setIsFetchingWiki(false);
   };

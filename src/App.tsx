@@ -274,8 +274,10 @@ export function App() {
         isOpen={isGlobalSearchOpen}
         lang={lang}
         allArtists={allArtists}
+        allEras={allEras}
         onClose={() => setIsGlobalSearchOpen(false)}
         onSelectArtist={(artist) => {
+          setArtistVersion(v => v + 1);
           if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
           setViewMode('timeline');
           setSelectedArtist(artist);

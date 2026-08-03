@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, Sparkles, ExternalLink, Image as ImageIcon, PlusCircle } from 'lucide-react';
-import { Language, Artist } from '../../types/timeline';
-import { searchExternalWikipediaEntities, CulturalEntityData } from '../../services/cultureApi';
+import { Language, Artist, Era } from '../../types/timeline';
+import { searchExternalWikipediaEntities, autoDetectArtistDetails, CulturalEntityData } from '../../services/cultureApi';
 import { saveCustomArtist, unhideArtist } from '../../services/userStorage';
 import './GlobalSearchModal.css';
 
@@ -9,6 +9,7 @@ interface GlobalSearchModalProps {
   isOpen: boolean;
   lang: Language;
   allArtists: Artist[];
+  allEras: Era[];
   onClose: () => void;
   onSelectArtist: (artist: Artist) => void;
 }
@@ -17,6 +18,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   isOpen,
   lang,
   allArtists,
+  allEras,
   onClose,
   onSelectArtist
 }) => {
@@ -56,13 +58,15 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   // Add external Wikipedia entity as a new artist to user's timeline
   const handleAddExternalEntityToTimeline = (entity: CulturalEntityData) => {
     const id = entity.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    const detected = autoDetectArtistDetails(entity.title, entity.summary, allEras);
+
     const newArtist: Artist = {
       id,
       name: entity.title,
-      discipline: 'painting',
-      era: 'high-renaissance',
-      birthYear: 1800,
-      deathYear: 1870,
+      discipline: detected.discipline,
+      era: detected.eraId,
+      birthYear: detected.birthYear,
+      deathYear: detected.deathYear,
       nationality: 'Global',
       bio: entity.summary || '',
       impactScore: 9.0,
@@ -73,7 +77,7 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
         influencedBy: [],
         influenced: [],
         contemporaries: [],
-        movements: ['high-renaissance']
+        movements: [detected.eraId]
       }
     };
 

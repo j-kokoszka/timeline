@@ -1,3 +1,5 @@
+import { Era, Discipline } from '../types/timeline';
+
 export interface CulturalEntityData {
   title: string;
   thumbnailUrl: string | null;
@@ -123,7 +125,7 @@ export async function fetchArtworkData(workTitle: string): Promise<ArtworkData |
 export async function searchExternalWikipediaEntities(query: string): Promise<CulturalEntityData[]> {
   if (!query || query.trim().length < 2) return [];
 
-  const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query + ' art history OR painting OR sculpture OR philosophy OR music')}&utf8=&format=json&origin=*&srlimit=8`;
+  const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query + ' art history OR painting OR sculpture OR philosophy OR music OR composer')}&utf8=&format=json&origin=*&srlimit=8`;
 
   try {
     const res = await fetch(url);
@@ -163,4 +165,65 @@ export async function fetchRandomCulturalMasterpiece(): Promise<ArtworkData | nu
   const randomIndex = Math.floor(Math.random() * RANDOM_MASTERPIECES_POOL.length);
   const selectedTitle = RANDOM_MASTERPIECES_POOL[randomIndex];
   return fetchArtworkData(selectedTitle);
+}
+
+/** Smart Auto-Detection of Discipline, Lifespan Years, and Era from Wikipedia Data */
+export function autoDetectArtistDetails(title: string, summary: string | null, allEras: Era[]): {
+  birthYear: number;
+  deathYear: number;
+  discipline: Discipline;
+  eraId: string;
+} {
+  const text = `${title} ${summary || ''}`.toLowerCase();
+
+  // 1. Detect Discipline from content
+  let discipline: Discipline = 'painting';
+  if (/composer|music|opera|symphony|orchestra|choir|piano|violin|moniuszko|chopin|bach|beethoven|mozart|tchaikovsky|liszt/i.test(text)) {
+    discipline = 'music';
+  } else if (/philosopher|ethics|logic|metaphysics|epistemology|nietzsche|kant|descartes|plato|aristotle/i.test(text)) {
+    discipline = 'philosophy';
+  } else if (/architect|building|cathedral|basilica|structure|palace|corbusier|brunelleschi|gaudi/i.test(text)) {
+    discipline = 'architecture';
+  } else if (/sculptor|statue|marble|bronze|bust|relief|michelangelo|rodin|bernini|canova/i.test(text)) {
+    discipline = 'sculpture';
+  } else if (/poet|novelist|playwright|writer|literature|prose|dante|shakespeare|goethe|mickiewicz|słowacki/i.test(text)) {
+    discipline = 'literature';
+  }
+
+  // 2. Extract Lifespan Years via RegEx
+  let birthYear = 1800;
+  let deathYear = 1870;
+
+  const yearMatch = text.match(/\b(\d{3,4})\s*(?:–|-|to)\s*(\d{3,4})\b/);
+  if (yearMatch) {
+    birthYear = parseInt(yearMatch[1]);
+    deathYear = parseInt(yearMatch[2]);
+  } else {
+    const bornMatch = text.match(/\b(?:born|b\.)\s*(\d{3,4})\b/i);
+    if (bornMatch) {
+      birthYear = parseInt(bornMatch[1]);
+      deathYear = birthYear + 65;
+    }
+  }
+
+  // 3. Check if eras exist for the detected discipline
+  const disciplineEras = allEras.filter(e => e.discipline === discipline);
+
+  // If no eras exist for the detected discipline, fall back to 'painting' for timeline placement
+  // (currently only painting eras are defined in the data)
+  const effectiveDiscipline: Discipline = disciplineEras.length > 0 ? discipline : 'painting';
+  const searchEras = disciplineEras.length > 0 ? disciplineEras : allEras.filter(e => e.discipline === 'painting');
+
+  // 4. Match Era by birth year
+  const matchedEra = searchEras.find(e =>
+    e.startYear <= birthYear &&
+    e.endYear >= birthYear
+  ) || searchEras[searchEras.length - 1] || allEras[0];
+
+  return {
+    birthYear,
+    deathYear,
+    discipline: effectiveDiscipline,
+    eraId: matchedEra ? matchedEra.id : 'modern-contemporary-macro'
+  };
 }
