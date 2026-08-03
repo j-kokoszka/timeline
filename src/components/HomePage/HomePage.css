@@ -1,9 +1,8 @@
 .home-page {
-  width: 100vw;
-  min-height: calc(100vh - 70px);
+  width: 100%;
+  min-height: 100%;
   background: var(--bg-dark);
   color: var(--text-main);
-  overflow-y: auto;
   padding: 40px 24px 80px;
   display: flex;
   flex-direction: column;

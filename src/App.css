@@ -115,5 +115,12 @@
   position: relative;
   width: 100vw;
   height: calc(100vh - 70px);
+}
+
+.app-main.home-mode {
+  overflow-y: auto;
+}
+
+.app-main.timeline-mode {
   overflow: hidden;
 }

@@ -179,7 +179,7 @@ export function App() {
         />
       )}
 
-      <main className="app-main">
+      <main className={`app-main ${viewMode === 'home' ? 'home-mode' : 'timeline-mode'}`}>
         {viewMode === 'home' ? (
           <HomePage
             user={currentUser}

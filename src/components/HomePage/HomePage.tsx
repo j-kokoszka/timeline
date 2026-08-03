@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { Compass, Award, Star, Heart, ArrowRight, Palette, Music, Book, Landmark, Feather, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Compass, Award, Star, Heart, ArrowRight, Palette, Music, Book, Landmark, Feather, Sparkles, CheckCircle2, Image as ImageIcon, ExternalLink, X } from 'lucide-react';
 import { Discipline, Language, Artist } from '../../types/timeline';
 import { getLocalizedString } from '../../lib/i18n';
+import { fetchArtworkData, ArtworkData } from '../../services/cultureApi';
 import './HomePage.css';
 
 interface HomePageProps {
@@ -28,11 +29,26 @@ export const HomePage: React.FC<HomePageProps> = ({
   onOpenAuth,
   onSelectArtist
 }) => {
+  const [spotlightArtwork, setSpotlightArtwork] = useState<ArtworkData | null>(null);
+  const [selectedLightboxArtwork, setSelectedLightboxArtwork] = useState<ArtworkData | null>(null);
+
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Explorer';
   const percent = totalWorksCount > 0 ? Math.min(100, Math.round((studiedCount / totalWorksCount) * 100)) : 0;
 
-  // Select a daily featured master (e.g. Leonardo da Vinci or Van Gogh)
   const featuredArtist = allArtists.find(a => a.id === 'leonardo-da-vinci') || allArtists[0];
+
+  // Fetch live artwork image for Daily Masterpiece (Mona Lisa)
+  useEffect(() => {
+    let isMounted = true;
+    fetchArtworkData('Mona Lisa').then(data => {
+      if (isMounted && data) {
+        setSpotlightArtwork(data);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const disciplines: { id: Discipline; title: string; titlePl: string; icon: any; desc: string; descPl: string }[] = [
     { id: 'painting', title: 'Painting', titlePl: 'Malarstwo', icon: Palette, desc: 'Da Vinci, Caravaggio, Van Gogh, Picasso', descPl: 'Da Vinci, Caravaggio, Van Gogh, Picasso' },
@@ -114,11 +130,20 @@ export const HomePage: React.FC<HomePageProps> = ({
         {featuredArtist && (
           <section>
             <div className="spotlight-card">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/600px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg"
-                alt="Mona Lisa"
-                className="spotlight-image"
-              />
+              {spotlightArtwork?.imageUrl ? (
+                <img
+                  src={spotlightArtwork.imageUrl}
+                  alt="Mona Lisa"
+                  className="spotlight-image"
+                  onClick={() => setSelectedLightboxArtwork(spotlightArtwork)}
+                  style={{ cursor: 'pointer' }}
+                />
+              ) : (
+                <div className="spotlight-image" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)' }}>
+                  <ImageIcon size={32} color="var(--text-muted)" />
+                </div>
+              )}
+
               <div className="spotlight-info">
                 <span className="spotlight-badge">✦ {lang === 'pl' ? 'Dzieło Dnia' : 'Daily Masterpiece Spotlight'}</span>
                 <h3 className="spotlight-title">Mona Lisa (La Gioconda)</h3>
@@ -126,15 +151,21 @@ export const HomePage: React.FC<HomePageProps> = ({
                   {getLocalizedString(featuredArtist, 'name', lang)} (1503 CE) • High Renaissance
                 </div>
                 <p className="spotlight-desc">
-                  {lang === 'pl'
+                  {spotlightArtwork?.description || (lang === 'pl'
                     ? 'Najsłynniejszy portret w historii sztuki zachodniej, namalowany przez Leonarda da Vinci z użyciem pionierskiej techniki sfumato.'
-                    : 'The world-famous portrait of Lisa Gherardini painted by Leonardo da Vinci, pioneering subtle sfumato shading and mysterious expressions.'}
+                    : 'The world-famous portrait of Lisa Gherardini painted by Leonardo da Vinci, pioneering subtle sfumato shading and mysterious expressions.')}
                 </p>
                 <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
                   <button className="secondary-cta-btn" onClick={() => onSelectArtist(featuredArtist)}>
                     <Star size={16} fill="#d9a74a" color="#d9a74a" />
                     <span>{lang === 'pl' ? 'Zobacz profil Leonarda' : 'Explore Leonardo Profile'}</span>
                   </button>
+                  {spotlightArtwork && (
+                    <button className="secondary-cta-btn" onClick={() => setSelectedLightboxArtwork(spotlightArtwork)}>
+                      <ImageIcon size={16} />
+                      <span>{lang === 'pl' ? 'Powiększ Obraz' : 'Zoom Painting'}</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -167,6 +198,39 @@ export const HomePage: React.FC<HomePageProps> = ({
         </section>
 
       </div>
+
+      {/* High-Res Painting Lightbox Modal */}
+      {selectedLightboxArtwork && (
+        <div className="lightbox-overlay" onClick={() => setSelectedLightboxArtwork(null)}>
+          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <button className="lightbox-close-btn" onClick={() => setSelectedLightboxArtwork(null)}>
+              <X size={18} />
+            </button>
+            {selectedLightboxArtwork.imageUrl && (
+              <img
+                src={selectedLightboxArtwork.imageUrl}
+                alt={selectedLightboxArtwork.title}
+                className="lightbox-image"
+              />
+            )}
+            <h3 className="lightbox-title">{selectedLightboxArtwork.title}</h3>
+            {selectedLightboxArtwork.description && (
+              <p className="lightbox-desc">{selectedLightboxArtwork.description}</p>
+            )}
+            {selectedLightboxArtwork.wikipediaUrl && (
+              <a
+                href={selectedLightboxArtwork.wikipediaUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="source-link"
+                style={{ width: 'fit-content' }}
+              >
+                View on Wikipedia <ExternalLink size={14} />
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
