@@ -5,6 +5,7 @@ import { ExploreTab } from './components/ExploreTab/ExploreTab';
 import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
+import { GlobalSearchModal } from './components/GlobalSearchModal/GlobalSearchModal';
 import { AddArtistModal } from './components/AddArtistModal/AddArtistModal';
 import { AuthModal } from './components/AuthModal/AuthModal';
 import { HamburgerMenu } from './components/HamburgerMenu/HamburgerMenu';
@@ -14,8 +15,7 @@ import { getUIText } from './lib/i18n';
 import { getCurrentUser, supabase } from './lib/supabase';
 import { getStudiedWorks, syncUserDataToCloud } from './services/cloudSync';
 import { getFavorites, deleteCustomArtist } from './services/userStorage';
-import { searchExternalWikipediaEntities, CulturalEntityData } from './services/cultureApi';
-import { Search, Menu, X, ExternalLink, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import './App.css';
 
 export function App() {
@@ -36,12 +36,8 @@ export function App() {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [isAddArtistOpen, setIsAddArtistOpen] = useState<boolean>(false);
 
-  // Upper Bar Global Search state
-  const [globalQuery, setGlobalQuery] = useState<string>('');
-  const [globalResults, setGlobalResults] = useState<CulturalEntityData[]>([]);
-  const [isGlobalSearching, setIsGlobalSearching] = useState<boolean>(false);
-  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState<boolean>(false);
-  const [selectedEntity, setSelectedEntity] = useState<CulturalEntityData | null>(null);
+  // Upper Bar Global Search Modal state
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState<boolean>(false);
 
   const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false);
   const [lang, setLang] = useState<Language>('en');
@@ -91,22 +87,17 @@ export function App() {
     }
   }, []);
 
-  // Debounced Upper Bar Global Search effect
+  // Ctrl+K / Cmd+K Global Search shortcut
   useEffect(() => {
-    if (!globalQuery.trim() || globalQuery.trim().length < 2) {
-      setGlobalResults([]);
-      return;
-    }
-
-    const timer = setTimeout(async () => {
-      setIsGlobalSearching(true);
-      const res = await searchExternalWikipediaEntities(globalQuery);
-      setGlobalResults(res);
-      setIsGlobalSearching(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [globalQuery]);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsGlobalSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLearningProgressUpdate = () => {
     setStudiedWorksMap(getStudiedWorks());
@@ -148,9 +139,6 @@ export function App() {
   };
 
   const activeStudiedCount = Object.keys(studiedWorksMap).length;
-  const localMatches = globalQuery.trim()
-    ? allArtists.filter(a => a.name.toLowerCase().includes(globalQuery.toLowerCase()))
-    : [];
 
   return (
     <div className="app-container">
@@ -173,99 +161,16 @@ export function App() {
         </div>
 
         <div className="header-actions">
-          {/* Upper Bar Inline Search Input */}
-          <div className="header-search-container">
+          {/* Upper Bar Search Button (Opens Centered Spotlight Prompt) */}
+          <button
+            className="auth-header-btn"
+            onClick={() => setIsGlobalSearchOpen(true)}
+            title="Global DB Search & Prompt (Ctrl+K)"
+            style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+          >
             <Search size={16} color="var(--accent-gold)" />
-            <input
-              type="text"
-              className="header-search-input"
-              placeholder={lang === 'pl' ? 'Szukaj w bazie danych (np. Da Vinci, Chopin)...' : 'Search global DB (e.g. Da Vinci, Chopin)...'}
-              value={globalQuery}
-              onChange={(e) => setGlobalQuery(e.target.value)}
-              onFocus={() => setIsSearchDropdownOpen(true)}
-            />
-            {globalQuery && (
-              <button
-                className="close-btn"
-                onClick={() => {
-                  setGlobalQuery('');
-                  setGlobalResults([]);
-                }}
-                style={{ padding: 2 }}
-              >
-                <X size={14} />
-              </button>
-            )}
-
-            {/* Upper Bar Dropdown Results */}
-            {isSearchDropdownOpen && globalQuery.trim().length >= 2 && (
-              <div className="header-search-dropdown" onMouseLeave={() => setIsSearchDropdownOpen(false)}>
-                {isGlobalSearching && (
-                  <div style={{ textAlign: 'center', padding: 12, color: 'var(--accent-gold)', fontSize: 12, fontWeight: 600 }}>
-                    <Sparkles size={14} className="spin" style={{ display: 'inline', marginRight: 6 }} />
-                    {lang === 'pl' ? 'Przeszukiwanie Wikipedii / Wikidata...' : 'Querying Wikipedia / Wikidata DB...'}
-                  </div>
-                )}
-
-                {/* Local Curated Matches */}
-                {localMatches.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent-gold)', letterSpacing: '0.08em' }}>
-                      ✦ CultureDB Curated
-                    </span>
-                    {localMatches.map(artist => (
-                      <div
-                        key={artist.id}
-                        className="global-search-item"
-                        style={{ padding: '8px 10px' }}
-                        onClick={() => {
-                          handleSelectArtistFromSearch(artist);
-                          setIsSearchDropdownOpen(false);
-                          setGlobalQuery('');
-                        }}
-                      >
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)' }}>{artist.name} ({artist.birthYear}–{artist.deathYear})</div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{artist.nationality} • {artist.discipline} • ★ {artist.impactScore}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Live External Wikipedia Matches */}
-                {globalResults.length > 0 && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                    <span style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', color: 'var(--accent-gold)', letterSpacing: '0.08em' }}>
-                      🌐 Global Wikipedia / Wikidata API
-                    </span>
-                    {globalResults.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="global-search-item"
-                        style={{ padding: '8px 10px' }}
-                        onClick={() => {
-                          setSelectedEntity(item);
-                          setIsSearchDropdownOpen(false);
-                        }}
-                      >
-                        {item.thumbnailUrl ? (
-                          <img src={item.thumbnailUrl} alt={item.title} className="global-search-item-img" style={{ width: 36, height: 36 }} referrerPolicy="no-referrer" />
-                        ) : (
-                          <div className="global-search-item-img" style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <ImageIcon size={16} color="var(--text-muted)" />
-                          </div>
-                        )}
-                        <div style={{ flexGrow: 1, overflow: 'hidden' }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-main)' }}>{item.title}</div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.snippet || item.summary}</div>
-                        </div>
-                        <ExternalLink size={12} color="var(--accent-gold)" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+            <span>{lang === 'pl' ? 'Szukaj w API (Ctrl+K)' : 'Global Search (Ctrl+K)'}</span>
+          </button>
 
           {/* All-in-One Hamburger Menu Button */}
           <button
@@ -364,32 +269,18 @@ export function App() {
         )}
       </main>
 
-      {/* External Entity Preview Lightbox Modal */}
-      {selectedEntity && (
-        <div className="lightbox-overlay" onClick={() => setSelectedEntity(null)}>
-          <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-            <button className="lightbox-close-btn" onClick={() => setSelectedEntity(null)}>
-              <X size={18} />
-            </button>
-            {selectedEntity.originalImageUrl && (
-              <img src={selectedEntity.originalImageUrl} alt={selectedEntity.title} className="lightbox-image" referrerPolicy="no-referrer" />
-            )}
-            <h3 className="lightbox-title">{selectedEntity.title}</h3>
-            {selectedEntity.summary && <p className="lightbox-desc">{selectedEntity.summary}</p>}
-            {selectedEntity.wikipediaUrl && (
-              <a
-                href={selectedEntity.wikipediaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="source-link"
-                style={{ width: 'fit-content' }}
-              >
-                {lang === 'pl' ? 'Otwórz artykuł na Wikipedii' : 'Open full Wikipedia article'} <ExternalLink size={14} />
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Centered Spotlight Command Palette Global Search Modal */}
+      <GlobalSearchModal
+        isOpen={isGlobalSearchOpen}
+        lang={lang}
+        allArtists={allArtists}
+        onClose={() => setIsGlobalSearchOpen(false)}
+        onSelectArtist={(artist) => {
+          if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+          setViewMode('timeline');
+          setSelectedArtist(artist);
+        }}
+      />
 
       {/* Add Custom Master Modal */}
       <AddArtistModal
@@ -422,7 +313,7 @@ export function App() {
         }}
         onToggleLang={handleToggleLang}
         onOpenAuth={() => setIsAuthModalOpen(true)}
-        onOpenSearch={() => {}}
+        onOpenSearch={() => setIsGlobalSearchOpen(true)}
         onOpenExplore={() => setViewMode('explore')}
         onOpenAddArtist={() => setIsAddArtistOpen(true)}
       />
