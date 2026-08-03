@@ -73,7 +73,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
     // Fetch thumbnails for effective catalog items
     effectiveCatalog.forEach(item => {
       fetchArtworkData(item.title).then(artData => {
-        if (isMounted) {
+        if (isMounted && artData) {
           setArtworksMap(prev => ({ ...prev, [item.title]: artData }));
         }
       });

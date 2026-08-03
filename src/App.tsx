@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { HomePage } from './components/HomePage/HomePage';
+import { ExploreTab } from './components/ExploreTab/ExploreTab';
 import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
@@ -16,7 +17,7 @@ import { Search, Menu } from 'lucide-react';
 import './App.css';
 
 export function App() {
-  const [viewMode, setViewMode] = useState<'home' | 'timeline'>('home');
+  const [viewMode, setViewMode] = useState<'home' | 'timeline' | 'explore'>('home');
   const [activeDiscipline, setActiveDiscipline] = useState<Discipline>('painting');
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [selectedEraId, setSelectedEraId] = useState<string | null>(null);
@@ -107,7 +108,7 @@ export function App() {
 
   return (
     <div className="app-container">
-      {/* Clean Uncluttered Header */}
+      {/* Clean Header */}
       <header className="app-header">
         <div className="header-left">
           <h1
@@ -172,7 +173,7 @@ export function App() {
         />
       )}
 
-      <main className={`app-main ${viewMode === 'home' ? 'home-mode' : 'timeline-mode'}`}>
+      <main className={`app-main ${viewMode === 'timeline' ? 'timeline-mode' : 'home-mode'}`}>
         {viewMode === 'home' ? (
           <HomePage
             user={currentUser}
@@ -185,6 +186,16 @@ export function App() {
               setViewMode('timeline');
             }}
             onOpenAuth={() => setIsAuthModalOpen(true)}
+            onSelectArtist={(artist) => {
+              if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+              setViewMode('timeline');
+              setSelectedArtist(artist);
+            }}
+          />
+        ) : viewMode === 'explore' ? (
+          <ExploreTab
+            lang={lang}
+            allArtists={allArtists}
             onSelectArtist={(artist) => {
               if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
               setViewMode('timeline');
@@ -239,6 +250,7 @@ export function App() {
         onToggleLang={handleToggleLang}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenExplore={() => setViewMode('explore')}
       />
 
       {/* Auth Modal & Profile Drawer */}

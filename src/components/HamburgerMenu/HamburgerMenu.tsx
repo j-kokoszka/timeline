@@ -18,6 +18,7 @@ interface HamburgerMenuProps {
   onToggleLang: () => void;
   onOpenAuth: () => void;
   onOpenSearch: () => void;
+  onOpenExplore: () => void;
 }
 
 export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
@@ -31,7 +32,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
   onSelectDiscipline,
   onToggleLang,
   onOpenAuth,
-  onOpenSearch
+  onOpenSearch,
+  onOpenExplore
 }) => {
   if (!isOpen) return null;
 
@@ -114,9 +116,16 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
           </div>
         </div>
 
-        {/* Actions: Search & Language */}
+        {/* Actions: Explore, Search & Language */}
         <div className="menu-section">
-          <span className="menu-section-title">{lang === 'pl' ? 'Ustawienia i Szukanie' : 'Settings & Search'}</span>
+          <span className="menu-section-title">{lang === 'pl' ? 'Odkrywaj i Ustawienia' : 'Explore & Settings'}</span>
+
+          <div className="menu-item-row" onClick={() => { onOpenExplore(); onClose(); }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 600 }}>
+              <Compass size={18} color="var(--accent-gold)" />
+              <span>{lang === 'pl' ? 'Odkrywaj Arcydzieła (Wikipedia API)' : 'Explore World Art (Wikipedia API)'}</span>
+            </div>
+          </div>
           
           <div className="menu-item-row" onClick={() => { onOpenSearch(); onClose(); }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, fontWeight: 600 }}>
