@@ -178,7 +178,6 @@ export function App() {
             user={currentUser}
             lang={lang}
             studiedCount={activeStudiedCount}
-            totalWorksCount={totalMasterworksCount}
             favoritesCount={favoritesCount}
             allArtists={allArtists}
             onNavigateToTimeline={(disc) => {

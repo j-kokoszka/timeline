@@ -10,7 +10,6 @@ interface HomePageProps {
   user: User | null;
   lang: Language;
   studiedCount: number;
-  totalWorksCount: number;
   favoritesCount: number;
   allArtists: Artist[];
   onNavigateToTimeline: (disc?: Discipline) => void;
@@ -22,7 +21,6 @@ export const HomePage: React.FC<HomePageProps> = ({
   user,
   lang,
   studiedCount,
-  totalWorksCount,
   favoritesCount,
   allArtists,
   onNavigateToTimeline,
@@ -33,7 +31,6 @@ export const HomePage: React.FC<HomePageProps> = ({
   const [selectedLightboxArtwork, setSelectedLightboxArtwork] = useState<ArtworkData | null>(null);
 
   const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'Explorer';
-  const percent = totalWorksCount > 0 ? Math.min(100, Math.round((studiedCount / totalWorksCount) * 100)) : 0;
 
   const featuredArtist = allArtists.find(a => a.id === 'leonardo-da-vinci') || allArtists[0];
 
@@ -108,11 +105,11 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             <div className="stat-card">
               <div className="stat-header">
-                <span>{lang === 'pl' ? 'Opanowane Arcydzieła' : 'Masterpieces Studied'}</span>
+                <span>{lang === 'pl' ? 'Opanowane Arcydzieła' : 'Masterpieces Mastered'}</span>
                 <Award size={18} color="var(--accent-gold)" />
               </div>
-              <div className="stat-value">{studiedCount} / {totalWorksCount}</div>
-              <div className="stat-desc">{percent}% {lang === 'pl' ? 'bazy opanowane' : 'dataset mastered'}</div>
+              <div className="stat-value">{studiedCount}</div>
+              <div className="stat-desc">{lang === 'pl' ? 'przestudiowanych dzieł sztuki' : 'artworks studied & mastered'}</div>
             </div>
 
             <div className="stat-card">
