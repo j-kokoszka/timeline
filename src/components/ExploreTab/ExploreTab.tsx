@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Search, Compass, ExternalLink, Image as ImageIcon, X, RefreshCw } from 'lucide-react';
 import { Language, Artist } from '../../types/timeline';
-import { fetchRandomCulturalMasterpiece, searchExternalWikipediaEntities, ArtworkData, CulturalEntityData } from '../../services/cultureApi';
+import { fetchRandomCulturalMasterpiece, searchExternalWikipediaEntities, fetchArtworkData, ArtworkData, CulturalEntityData } from '../../services/cultureApi';
 import './ExploreTab.css';
 
 interface ExploreTabProps {
@@ -21,6 +21,31 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
   const [searchResults, setSearchResults] = useState<CulturalEntityData[]>([]);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [selectedEntity, setSelectedEntity] = useState<CulturalEntityData | null>(null);
+
+  // Theme artwork images fetched dynamically from Wikipedia API
+  const [themeImages, setThemeImages] = useState<Record<string, string>>({});
+
+  // Fetch live images for curated themes
+  useEffect(() => {
+    let isMounted = true;
+    const themesToFetch = [
+      { key: 'renaissance', title: 'The School of Athens' },
+      { key: 'dutch', title: 'The Night Watch' },
+      { key: 'impressionism', title: 'Impression, Sunrise' },
+      { key: 'baroque', title: 'Judith Beheading Holofernes' }
+    ];
+
+    themesToFetch.forEach(async ({ key, title }) => {
+      const art = await fetchArtworkData(title);
+      if (isMounted && art?.imageUrl) {
+        setThemeImages(prev => ({ ...prev, [key]: art.imageUrl! }));
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Handle Random Masterpiece Generator
   const handleGenerateRandom = async () => {
@@ -43,10 +68,10 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
 
   // Curated historical themes
   const curatedThemes = [
-    { title: 'Florentine High Renaissance', titlePl: 'Włoski Wysoki Renesans', count: 'Da Vinci, Michelangelo, Raphael', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/The_School_of_Athens_%28Raphael%29.jpg/640px-The_School_of_Athens_%28Raphael%29.jpg' },
-    { title: 'The Dutch Golden Age', titlePl: 'Złoty Wiek Malarstwa Duńskiego', count: 'Rembrandt, Vermeer, Frans Hals', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Night_Watch_-_Rembrandt_van_Rijn.jpg/640px-The_Night_Watch_-_Rembrandt_van_Rijn.jpg' },
-    { title: 'Impressionist Revolution', titlePl: 'Rewolucja Impresjonistyczna', count: 'Monet, Renoir, Degas, Manet', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Claude_Monet%2C_Impression%2C_soleil_levant.jpg/640px-Claude_Monet%2C_Impression%2C_soleil_levant.jpg' },
-    { title: 'Baroque Dramatic Chiaroscuro', titlePl: 'Dramatyzm Światłocienia Baroku', count: 'Caravaggio, Bernini, Artemisia', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Caravaggio_-_Judith_Beheading_Holofernes_-_Gallerie_Nazionali_di_Arte_Antica.jpg/640px-Caravaggio_-_Judith_Beheading_Holofernes_-_Gallerie_Nazionali_di_Arte_Antica.jpg' }
+    { key: 'renaissance', title: 'Florentine High Renaissance', titlePl: 'Włoski Wysoki Renesans', count: 'Da Vinci, Michelangelo, Raphael', fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/The_School_of_Athens_%28Raphael%29.jpg/640px-The_School_of_Athens_%28Raphael%29.jpg' },
+    { key: 'dutch', title: 'The Dutch Golden Age', titlePl: 'Złoty Wiek Malarstwa Holenderskiego', count: 'Rembrandt, Vermeer, Frans Hals', fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Night_Watch_-_Rembrandt_van_Rijn.jpg/640px-The_Night_Watch_-_Rembrandt_van_Rijn.jpg' },
+    { key: 'impressionism', title: 'Impressionist Revolution', titlePl: 'Rewolucja Impresjonistyczna', count: 'Monet, Renoir, Degas, Manet', fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Claude_Monet%2C_Impression%2C_soleil_levant.jpg/640px-Claude_Monet%2C_Impression%2C_soleil_levant.jpg' },
+    { key: 'baroque', title: 'Baroque Dramatic Chiaroscuro', titlePl: 'Dramatyzm Światłocienia Baroku', count: 'Caravaggio, Bernini, Artemisia', fallbackImg: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Caravaggio_-_Judith_Beheading_Holofernes_-_Gallerie_Nazionali_di_Arte_Antica.jpg/640px-Caravaggio_-_Judith_Beheading_Holofernes_-_Gallerie_Nazionali_di_Arte_Antica.jpg' }
   ];
 
   return (
@@ -71,7 +96,12 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
         {/* "Surprise Me!" Random Masterpiece Generator */}
         <section className="random-card">
           {randomMasterpiece?.imageUrl ? (
-            <img src={randomMasterpiece.imageUrl} alt={randomMasterpiece.title} className="random-image" />
+            <img
+              src={randomMasterpiece.imageUrl}
+              alt={randomMasterpiece.title}
+              className="random-image"
+              referrerPolicy="no-referrer"
+            />
           ) : (
             <div className="random-image" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.4)' }}>
               <Sparkles size={36} color="var(--accent-gold)" />
@@ -144,7 +174,12 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
               {searchResults.map((res, i) => (
                 <div key={i} className="result-card" onClick={() => setSelectedEntity(res)}>
                   {res.thumbnailUrl ? (
-                    <img src={res.thumbnailUrl} alt={res.title} className="result-card-img" />
+                    <img
+                      src={res.thumbnailUrl}
+                      alt={res.title}
+                      className="result-card-img"
+                      referrerPolicy="no-referrer"
+                    />
                   ) : (
                     <div className="result-card-img" style={{ background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <ImageIcon size={32} color="var(--text-muted)" />
@@ -169,22 +204,30 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
             🏛️ {lang === 'pl' ? 'Wybrane Kolekcje i Epoki' : 'Curated Historical Collections'}
           </h3>
           <div className="collection-grid">
-            {curatedThemes.map((theme, idx) => (
-              <div
-                key={idx}
-                className="collection-card"
-                onClick={() => {
-                  const matched = allArtists.find(a => a.name.toLowerCase().includes('vinci') || a.name.toLowerCase().includes('rembrandt') || a.name.toLowerCase().includes('monet') || a.name.toLowerCase().includes('caravaggio'));
-                  if (matched) onSelectArtist(matched);
-                }}
-              >
-                <img src={theme.img} alt={theme.title} className="collection-card-img" />
-                <div className="collection-card-overlay">
-                  <div className="collection-card-title">{lang === 'pl' ? theme.titlePl : theme.title}</div>
-                  <div className="collection-card-count">{theme.count}</div>
+            {curatedThemes.map((theme) => {
+              const activeImg = themeImages[theme.key] || theme.fallbackImg;
+              return (
+                <div
+                  key={theme.key}
+                  className="collection-card"
+                  onClick={() => {
+                    const matched = allArtists.find(a => a.name.toLowerCase().includes('vinci') || a.name.toLowerCase().includes('rembrandt') || a.name.toLowerCase().includes('monet') || a.name.toLowerCase().includes('caravaggio'));
+                    if (matched) onSelectArtist(matched);
+                  }}
+                >
+                  <img
+                    src={activeImg}
+                    alt={theme.title}
+                    className="collection-card-img"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="collection-card-overlay">
+                    <div className="collection-card-title">{lang === 'pl' ? theme.titlePl : theme.title}</div>
+                    <div className="collection-card-count">{theme.count}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -198,7 +241,12 @@ export const ExploreTab: React.FC<ExploreTabProps> = ({
               <X size={18} />
             </button>
             {selectedEntity.originalImageUrl && (
-              <img src={selectedEntity.originalImageUrl} alt={selectedEntity.title} className="lightbox-image" />
+              <img
+                src={selectedEntity.originalImageUrl}
+                alt={selectedEntity.title}
+                className="lightbox-image"
+                referrerPolicy="no-referrer"
+              />
             )}
             <h3 className="lightbox-title">{selectedEntity.title}</h3>
             {selectedEntity.summary && <p className="lightbox-desc">{selectedEntity.summary}</p>}

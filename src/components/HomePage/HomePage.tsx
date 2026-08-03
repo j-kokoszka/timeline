@@ -132,6 +132,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   src={spotlightArtwork.imageUrl}
                   alt="Mona Lisa"
                   className="spotlight-image"
+                  referrerPolicy="no-referrer"
                   onClick={() => setSelectedLightboxArtwork(spotlightArtwork)}
                   style={{ cursor: 'pointer' }}
                 />
