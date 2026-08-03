@@ -1,0 +1,62 @@
+{
+  "id": "rembrandt",
+  "name": "Rembrandt van Rijn",
+  "discipline": "painting",
+  "era": "dutch-golden-age",
+  "birthYear": 1606,
+  "deathYear": 1669,
+  "nationality": "Dutch",
+  "nationalityPl": "Holenderski",
+  "bio": "Dutch Golden Age painter, draughtsman, and printmaker. Generally considered one of the greatest visual artists in the history of art, renowned for his psychological insight and chiaroscuro.",
+  "bioPl": "Holenderski malarz Złotego Wieku, rysownik i grafik. Powszechnie uważany za jednego z najwybitniejszych artystów w historii, słynący z głębi psychologicznej i mistrzostwa światłocienia.",
+  "notableWorks": [
+    "The Night Watch",
+    "The Anatomy Lesson of Dr. Nicolaes Tulp",
+    "Syndics of the Drapers' Guild",
+    "Self-Portrait with Two Circles"
+  ],
+  "catalog": [
+    {
+      "id": "the-night-watch",
+      "title": "The Night Watch",
+      "titlePl": "Straż Nocna",
+      "year": 1642,
+      "medium": "Oil on canvas",
+      "location": "Rijksmuseum, Amsterdam",
+      "locationPl": "Rijksmuseum, Amsterdam",
+      "description": "Monumental Dutch Golden Age masterpiece depicting Captain Frans Banning Cocq's civic guardsmen in motion."
+    },
+    {
+      "id": "the-anatomy-lesson",
+      "title": "The Anatomy Lesson of Dr. Nicolaes Tulp",
+      "titlePl": "Lekcja anatomii doktora Tulpa",
+      "year": 1632,
+      "medium": "Oil on canvas",
+      "location": "Mauritshuis, The Hague",
+      "locationPl": "Mauritshuis, Haga",
+      "description": "Famous group portrait showing Dr. Nicolaes Tulp demonstrating the musculature of the arm."
+    },
+    {
+      "id": "syndics-drapers-guild",
+      "title": "Syndics of the Drapers' Guild",
+      "titlePl": "Starsi cechu sukienników",
+      "year": 1662,
+      "medium": "Oil on canvas",
+      "location": "Rijksmuseum, Amsterdam",
+      "locationPl": "Rijksmuseum, Amsterdam",
+      "description": "Group portrait of five drapers evaluating cloth quality, renowned for its striking eye contact with viewers."
+    }
+  ],
+  "impactScore": 9.7,
+  "wikidataId": "Q5598",
+  "relationships": {
+    "influencedBy": ["caravaggio"],
+    "influenced": ["johannes-vermeer", "van-gogh"],
+    "contemporaries": ["johannes-vermeer"],
+    "movements": ["dutch-golden-age", "baroque"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Rembrandt",
+    "https://www.wikidata.org/wiki/Q5598"
+  ]
+}

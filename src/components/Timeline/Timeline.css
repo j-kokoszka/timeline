@@ -1,0 +1,432 @@
+.timeline-container {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 70px);
+  background: radial-gradient(circle at 50% 20%, #171c2b 0%, #0f1117 80%);
+  overflow: hidden;
+  user-select: none;
+}
+
+.timeline-svg {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.timeline-svg:active {
+  cursor: grabbing;
+}
+
+/* Era Bands */
+.era-band {
+  cursor: pointer;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.era-band:hover .era-band-rect {
+  fill-opacity: 0.55 !important;
+  stroke-opacity: 0.9 !important;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+.era-band-rect {
+  rx: 6px;
+  ry: 6px;
+  stroke-width: 1px;
+  transition: fill-opacity 0.15s ease, stroke-opacity 0.15s ease;
+}
+
+.era-band-rect.tier-1 {
+  stroke-width: 1.5px;
+  rx: 8px;
+  ry: 8px;
+}
+
+.era-band-rect.tier-2 {
+  stroke-dasharray: none;
+}
+
+.era-band-rect.tier-3 {
+  stroke-dasharray: 3 3;
+}
+
+.era-band-rect.selected {
+  stroke: #ffffff !important;
+  stroke-width: 2.5px !important;
+  fill-opacity: 0.75 !important;
+  filter: drop-shadow(0 0 14px var(--accent-gold-glow)) !important;
+}
+
+.era-label {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.era-label.tier-1 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+}
+
+.era-label.tier-2 {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.era-label.tier-3 {
+  font-size: 10px;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.lane-header-label {
+  font-family: var(--font-heading);
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lod-badge {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-glow);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-gold);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--shadow-subtle);
+}
+
+/* Selected Era Info Banner Overlay */
+.era-info-banner {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 24, 36, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 15;
+  box-shadow: var(--shadow-glass);
+  max-width: 650px;
+}
+
+.era-banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.era-banner-title {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-main);
+}
+
+.era-banner-years {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-gold);
+}
+
+.era-banner-count {
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  color: var(--text-muted);
+}
+
+.era-banner-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.era-banner-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--text-muted);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.era-banner-close:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Year Axis & Grid */
+.grid-line {
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-dasharray: 4 4;
+}
+
+.major-tick-line {
+  stroke: rgba(255, 255, 255, 0.12);
+}
+
+.year-tick-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  font-weight: 500;
+}
+
+/* Artist Rectangles */
+.artist-group {
+  cursor: pointer;
+}
+
+.artist-rect {
+  rx: 6px;
+  ry: 6px;
+  stroke-width: 1.5px;
+  transition: fill-opacity 0.15s ease, stroke-opacity 0.15s ease;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+}
+
+.artist-rect.selected {
+  stroke: var(--accent-gold) !important;
+  stroke-width: 2.5px;
+  filter: drop-shadow(0 0 16px rgba(217, 167, 74, 0.6)) !important;
+}
+
+.artist-rect.rel-influencedBy {
+  fill: #8b5cf6 !important;
+  stroke: #c4b5fd !important;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.6)) !important;
+}
+
+.artist-rect.rel-influenced {
+  fill: #10b981 !important;
+  stroke: #6ee7b7 !important;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.6)) !important;
+}
+
+.artist-rect.rel-contemporaries {
+  fill: #0284c7 !important;
+  stroke: #7dd3fc !important;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 12px rgba(2, 132, 199, 0.6)) !important;
+}
+
+/* SVG Connection Lines */
+.connection-path {
+  fill: none;
+  stroke-linecap: round;
+  pointer-events: none;
+  stroke-dasharray: 6 3;
+  animation: strokeDash 20s linear infinite;
+}
+
+.connection-path.influencedBy {
+  stroke: #a78bfa;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 6px rgba(167, 139, 250, 0.7));
+}
+
+.connection-path.influenced {
+  stroke: #34d399;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.7));
+}
+
+.connection-path.contemporaries {
+  stroke: #38bdf8;
+  stroke-width: 2px;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.7));
+}
+
+@keyframes strokeDash {
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+
+.relationship-legend {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glow);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 15;
+  box-shadow: var(--shadow-glass);
+}
+
+.legend-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.legend-items {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.selected {
+  background: #d9a74a;
+  box-shadow: 0 0 8px #d9a74a;
+}
+
+.legend-dot.influencedBy {
+  background: #8b5cf6;
+  box-shadow: 0 0 8px #8b5cf6;
+}
+
+.legend-dot.influenced {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.legend-dot.contemporaries {
+  background: #0284c7;
+  box-shadow: 0 0 8px #0284c7;
+}
+
+.era-label {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 12px;
+  pointer-events: none;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.era-label.tier-1 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.era-label.tier-2 {
+  font-size: 11px;
+}
+
+.era-label.tier-3 {
+  font-size: 10px;
+  font-style: italic;
+}
+
+.artist-text {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  fill: #ffffff;
+  pointer-events: none;
+  text-anchor: middle;
+  user-select: none;
+}
+
+.artist-dates {
+  font-family: var(--font-body);
+  font-size: 10px;
+  fill: rgba(255, 255, 255, 0.75);
+  pointer-events: none;
+  text-anchor: middle;
+  user-select: none;
+}
+
+/* Zoom Controls Overlay */
+.timeline-controls {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  padding: 8px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-glass);
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Tooltip */
+.artist-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: rgba(15, 17, 23, 0.95);
+  border: 1px solid var(--border-glow);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  font-size: 12px;
+  z-index: 50;
+  box-shadow: var(--shadow-glass);
+  transform: translate(-50%, -100%);
+  margin-top: -12px;
+  backdrop-filter: blur(12px);
+}

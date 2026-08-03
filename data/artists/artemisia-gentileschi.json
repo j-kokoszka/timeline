@@ -1,0 +1,25 @@
+{
+  "id": "artemisia-gentileschi",
+  "name": "Artemisia Gentileschi",
+  "discipline": "painting",
+  "era": "baroque",
+  "birthYear": 1593,
+  "deathYear": 1656,
+  "nationality": "Italian",
+  "bio": "Italian Baroque painter, considered among the most accomplished artists of the 17th century. Famous for her powerful, dramatic depictions of heroic women and masterful Caravaggesque chiaroscuro.",
+  "notableWorks": [
+    "Judith Slaying Holofernes",
+    "Susanna and the Elders",
+    "Self-Portrait as the Allegory of Painting"
+  ],
+  "relationships": {
+    "influencedBy": ["caravaggio"],
+    "influenced": [],
+    "contemporaries": ["rembrandt", "johannes-vermeer"],
+    "movements": ["baroque"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Artemisia_Gentileschi",
+    "https://www.britannica.com/biography/Artemisia-Gentileschi"
+  ]
+}

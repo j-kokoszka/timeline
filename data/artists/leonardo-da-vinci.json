@@ -1,0 +1,72 @@
+{
+  "id": "leonardo-da-vinci",
+  "name": "Leonardo da Vinci",
+  "discipline": "painting",
+  "era": "high-renaissance",
+  "birthYear": 1452,
+  "deathYear": 1519,
+  "nationality": "Italian",
+  "nationalityPl": "Włoski",
+  "bio": "Italian polymath of the High Renaissance who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor, and architect. Famous for pioneering sfumato shading and iconic masterpieces like Mona Lisa and The Last Supper.",
+  "bioPl": "Włoski człowiek renesansu: malarz, inżynier, naukowiec, rzeźbiarz i architekt. Słynny z pionierskiego zastosowania techniki sfumato oraz arcydzieł takich jak Mona Lisa i Ostatnia Wieczerza.",
+  "notableWorks": [
+    "Mona Lisa",
+    "The Last Supper",
+    "Vitruvian Man",
+    "Lady with an Ermine"
+  ],
+  "catalog": [
+    {
+      "id": "mona-lisa",
+      "title": "Mona Lisa (La Gioconda)",
+      "titlePl": "Mona Lisa",
+      "year": 1503,
+      "medium": "Oil on poplar panel",
+      "location": "Musée du Louvre, Paris",
+      "locationPl": "Muzeum Luwr, Paryż",
+      "description": "World-famous portrait of Lisa Gherardini featuring Leonardo's subtle sfumato blending and mysterious smile."
+    },
+    {
+      "id": "the-last-supper",
+      "title": "The Last Supper (Il Cenacolo)",
+      "titlePl": "Ostatnia Wieczerza",
+      "year": 1498,
+      "medium": "Tempera and oil on gesso",
+      "location": "Convent of Santa Maria delle Grazie, Milan",
+      "locationPl": "Klasztor Santa Maria delle Grazie, Mediolan",
+      "description": "Monumental High Renaissance mural depicting Jesus announcing that one of his apostles will betray him."
+    },
+    {
+      "id": "lady-with-an-ermine",
+      "title": "Lady with an Ermine",
+      "titlePl": "Dama z gronostajem",
+      "year": 1489,
+      "medium": "Oil on walnut panel",
+      "location": "Czartoryski Museum, Kraków",
+      "locationPl": "Muzeum Książąt Czartoryskich, Kraków",
+      "description": "Masterpiece portrait of Cecilia Gallerani holding a white ermine, preserved in Kraków, Poland."
+    },
+    {
+      "id": "vitruvian-man",
+      "title": "Vitruvian Man",
+      "titlePl": "Człowiek witruwiański",
+      "year": 1490,
+      "medium": "Ink and paper drawing",
+      "location": "Gallerie dell'Accademia, Venice",
+      "locationPl": "Gallerie dell'Accademia, Wenecja",
+      "description": "Iconic drawing illustrating ideal human proportions based on the Roman architect Vitruvius."
+    }
+  ],
+  "impactScore": 9.9,
+  "wikidataId": "Q762",
+  "relationships": {
+    "influencedBy": [],
+    "influenced": ["michelangelo", "caravaggio"],
+    "contemporaries": ["michelangelo"],
+    "movements": ["high-renaissance"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Leonardo_da_Vinci",
+    "https://www.wikidata.org/wiki/Q762"
+  ]
+}

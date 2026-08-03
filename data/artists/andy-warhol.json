@@ -1,0 +1,29 @@
+{
+  "id": "andy-warhol",
+  "name": "Andy Warhol",
+  "discipline": "painting",
+  "era": "pop-art",
+  "birthYear": 1928,
+  "deathYear": 1987,
+  "nationality": "American",
+  "nationalityPl": "Amerykański",
+  "bio": "American visual artist, director, and producer who was a leading figure in the visual art movement known as pop art. Explored the relationship between artistic expression, advertising, and celebrity culture.",
+  "bioPl": "Amerykański artysta, reżyser i czołowa postać pop-artu. Badacz relacji między sztuką, reklamą i kulturą masową.",
+  "notableWorks": [
+    "Campbell's Soup Cans",
+    "Marilyn Diptych",
+    "Silver Car Crash (Double Disaster)"
+  ],
+  "impactScore": 9.3,
+  "wikidataId": "Q5682",
+  "relationships": {
+    "influencedBy": ["picasso"],
+    "influenced": [],
+    "contemporaries": ["picasso"],
+    "movements": ["pop-art"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Andy_Warhol",
+    "https://www.wikidata.org/wiki/Q5682"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "johannes-vermeer",
+  "name": "Johannes Vermeer",
+  "discipline": "painting",
+  "era": "dutch-golden-age",
+  "birthYear": 1632,
+  "deathYear": 1675,
+  "nationality": "Dutch",
+  "bio": "Dutch Baroque painter who specialized in domestic interior scenes of middle-class life. Renowned for exquisite treatment of light, luminous pigments like ultramarine, and serene compositions.",
+  "notableWorks": [
+    "Girl with a Pearl Earring",
+    "The Milkmaid",
+    "The Art of Painting",
+    "View of Delft"
+  ],
+  "relationships": {
+    "influencedBy": [],
+    "influenced": [],
+    "contemporaries": ["rembrandt", "artemisia-gentileschi"],
+    "movements": ["dutch-golden-age"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Johannes_Vermeer",
+    "https://www.britannica.com/biography/Johannes-Vermeer"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "picasso",
+  "name": "Pablo Picasso",
+  "discipline": "painting",
+  "era": "cubism",
+  "birthYear": 1881,
+  "deathYear": 1973,
+  "nationality": "Spanish",
+  "nationalityPl": "Hiszpański",
+  "bio": "Spanish painter, sculptor, printmaker, ceramicist, and stage designer who spent most of his adult life in France. Co-founded the Cubist movement and invented constructed sculpture.",
+  "bioPl": "Hiszpański malarz, rzeźbiarz i grafik. Współtwórca kubizmu, rewolucjonista sztuki XX wieku i jedna z najbardziej wpływowych postaci nowoczesnej kultury.",
+  "notableWorks": [
+    "Les Demoiselles d'Avignon",
+    "Guernica",
+    "The Weeping Woman",
+    "The Old Guitarist"
+  ],
+  "catalog": [
+    {
+      "id": "guernica",
+      "title": "Guernica",
+      "titlePl": "Guernica",
+      "year": 1937,
+      "medium": "Oil on canvas",
+      "location": "Museo Reina Sofía, Madrid",
+      "locationPl": "Muzeum Królowej Zofii, Madryt",
+      "description": "Monumental anti-war masterpiece depicting the tragic bombing of Guernica during the Spanish Civil War."
+    },
+    {
+      "id": "les-demoiselles-davignon",
+      "title": "Les Demoiselles d'Avignon",
+      "titlePl": "Panny z Awinionu",
+      "year": 1907,
+      "medium": "Oil on canvas",
+      "location": "Museum of Modern Art (MoMA), New York",
+      "locationPl": "Museum of Modern Art (MoMA), Nowy Jork",
+      "description": "Revolutionary proto-Cubist masterpiece deconstructing female figures into geometric planes."
+    },
+    {
+      "id": "the-old-guitarist",
+      "title": "The Old Guitarist",
+      "titlePl": "Stary gitarzysta",
+      "year": 1903,
+      "medium": "Oil on panel",
+      "location": "Art Institute of Chicago",
+      "locationPl": "Art Institute of Chicago",
+      "description": "Famous Blue Period painting depicting a blind, haggard musician hunched over his guitar."
+    }
+  ],
+  "impactScore": 9.9,
+  "wikidataId": "Q5593",
+  "relationships": {
+    "influencedBy": ["van-gogh", "monet"],
+    "influenced": ["salvador-dali", "andy-warhol"],
+    "contemporaries": ["salvador-dali"],
+    "movements": ["cubism", "surrealism"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Pablo_Picasso",
+    "https://www.wikidata.org/wiki/Q5593"
+  ]
+}

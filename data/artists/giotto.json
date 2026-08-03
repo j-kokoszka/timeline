@@ -1,0 +1,25 @@
+{
+  "id": "giotto",
+  "name": "Giotto di Bondone",
+  "discipline": "painting",
+  "era": "proto-renaissance",
+  "birthYear": 1267,
+  "deathYear": 1337,
+  "nationality": "Italian",
+  "bio": "Italian painter and architect from Florence in the late Middle Ages. Generally considered the first in a line of great artists who contributed to the Italian Renaissance through three-dimensional spatial depth and human emotion.",
+  "notableWorks": [
+    "Scrovegni Chapel Frescoes",
+    "Lamentation (The Mourning of Christ)",
+    "Ognissanti Madonna"
+  ],
+  "relationships": {
+    "influencedBy": [],
+    "influenced": ["leonardo-da-vinci", "michelangelo"],
+    "contemporaries": [],
+    "movements": ["proto-renaissance"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Giotto",
+    "https://www.britannica.com/biography/Giotto-di-Bondone"
+  ]
+}

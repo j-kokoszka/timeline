@@ -1,0 +1,26 @@
+{
+  "id": "michelangelo",
+  "name": "Michelangelo Buonarroti",
+  "discipline": "painting",
+  "era": "high-renaissance",
+  "birthYear": 1475,
+  "deathYear": 1564,
+  "nationality": "Italian",
+  "bio": "Italian sculptor, painter, architect, and poet of the High Renaissance. Known for the Sistine Chapel ceiling, The Last Judgment, and his monumental sculpture of David.",
+  "notableWorks": [
+    "Sistine Chapel Ceiling",
+    "The Creation of Adam",
+    "The Last Judgment",
+    "David"
+  ],
+  "relationships": {
+    "influencedBy": ["leonardo-da-vinci"],
+    "influenced": ["caravaggio"],
+    "contemporaries": ["leonardo-da-vinci"],
+    "movements": ["high-renaissance", "mannerism"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Michelangelo",
+    "https://www.britannica.com/biography/Michelangelo"
+  ]
+}

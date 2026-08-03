@@ -1,0 +1,30 @@
+{
+  "id": "monet",
+  "name": "Claude Monet",
+  "discipline": "painting",
+  "era": "impressionism",
+  "birthYear": 1840,
+  "deathYear": 1926,
+  "nationality": "French",
+  "nationalityPl": "Francuski",
+  "bio": "French painter and founder of Impressionist painting who is seen as a key precursor to modernism, especially in his attempt to paint nature as he perceived it.",
+  "bioPl": "Francuski malarz, główny przedstawiciel i twórca impresjonizmu. Słynny z uchwycenia światła i pór dnia w seriach obrazów takich как Giverny i Nimfy.",
+  "notableWorks": [
+    "Impression, Sunrise",
+    "Water Lilies series",
+    "Woman with a Parasol",
+    "Haystacks"
+  ],
+  "impactScore": 9.6,
+  "wikidataId": "Q296",
+  "relationships": {
+    "influencedBy": [],
+    "influenced": ["van-gogh", "picasso"],
+    "contemporaries": ["van-gogh"],
+    "movements": ["impressionism"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Claude_Monet",
+    "https://www.wikidata.org/wiki/Q296"
+  ]
+}

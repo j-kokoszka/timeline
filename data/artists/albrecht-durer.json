@@ -1,0 +1,26 @@
+{
+  "id": "albrecht-durer",
+  "name": "Albrecht Dürer",
+  "discipline": "painting",
+  "era": "northern-renaissance",
+  "birthYear": 1471,
+  "deathYear": 1528,
+  "nationality": "German",
+  "bio": "German painter, printmaker, and theorist of the German Renaissance. Established his reputation across Europe when in his twenties due to high-quality woodcut prints and naturalistic oil masterpieces.",
+  "notableWorks": [
+    "Self-Portrait (1500)",
+    "Melencolia I",
+    "Young Hare",
+    "Praying Hands"
+  ],
+  "relationships": {
+    "influencedBy": ["leonardo-da-vinci"],
+    "influenced": ["rembrandt"],
+    "contemporaries": ["leonardo-da-vinci", "michelangelo"],
+    "movements": ["northern-renaissance"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Albrecht_D%C3%BCrer",
+    "https://www.britannica.com/biography/Albrecht-Durer-German-artist"
+  ]
+}

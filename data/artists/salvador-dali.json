@@ -1,0 +1,29 @@
+{
+  "id": "salvador-dali",
+  "name": "Salvador Dalí",
+  "discipline": "painting",
+  "era": "surrealism",
+  "birthYear": 1904,
+  "deathYear": 1989,
+  "nationality": "Spanish",
+  "nationalityPl": "Hiszpański",
+  "bio": "Spanish Surrealist painter renowned for his technical skill, precise draftsmanship, and the striking and bizarre images in his work, such as melt clocks.",
+  "bioPl": "Hiszpański malarz surrealistyczny, słynący z niezwykłej precyzji warsztatowej oraz szokujących, sennych motywów, takich jak miękkie zegary.",
+  "notableWorks": [
+    "The Persistence of Memory",
+    "Swans Reflecting Elephants",
+    "Soft Construction with Boiled Beans"
+  ],
+  "impactScore": 9.4,
+  "wikidataId": "Q5577",
+  "relationships": {
+    "influencedBy": ["van-gogh", "picasso"],
+    "influenced": ["andy-warhol"],
+    "contemporaries": ["picasso"],
+    "movements": ["surrealism"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Salvador_Dal%C3%AD",
+    "https://www.wikidata.org/wiki/Q5577"
+  ]
+}

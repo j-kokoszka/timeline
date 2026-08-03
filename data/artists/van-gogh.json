@@ -1,0 +1,62 @@
+{
+  "id": "van-gogh",
+  "name": "Vincent van Gogh",
+  "discipline": "painting",
+  "era": "post-impressionism",
+  "birthYear": 1853,
+  "deathYear": 1890,
+  "nationality": "Dutch",
+  "nationalityPl": "Holenderski",
+  "bio": "Dutch Post-Impressionist painter who became one of the most famous figures in Western art history. Created around 2,100 artworks characterized by dramatic impasto brushwork and expressive color.",
+  "bioPl": "Holenderski malarz postimpresjonistyczny, uznawany za jedną z najważniejszych postaci w historii sztuki. Stworzył około 2100 dzieł wyróżniających się ekspresją i grubą fakturą (impasto).",
+  "notableWorks": [
+    "The Starry Night",
+    "Sunflowers",
+    "The Potato Eaters",
+    "Bedroom in Arles"
+  ],
+  "catalog": [
+    {
+      "id": "the-starry-night",
+      "title": "The Starry Night",
+      "titlePl": "Gwieździsta noc",
+      "year": 1889,
+      "medium": "Oil on canvas",
+      "location": "Museum of Modern Art (MoMA), New York",
+      "locationPl": "Museum of Modern Art (MoMA), Nowy Jork",
+      "description": "Depicts the view from Van Gogh's asylum room window at Saint-Rémy-de-Provence with swirling night skies."
+    },
+    {
+      "id": "sunflowers",
+      "title": "Sunflowers series",
+      "titlePl": "Słoneczniki",
+      "year": 1888,
+      "medium": "Oil on canvas",
+      "location": "National Gallery, London / Van Gogh Museum, Amsterdam",
+      "locationPl": "National Gallery, Londyn / Muzeum Van Gogha, Amsterdam",
+      "description": "Famous series of still life paintings featuring vibrant yellow sunflowers created in Arles."
+    },
+    {
+      "id": "the-potato-eaters",
+      "title": "The Potato Eaters",
+      "titlePl": "Jedzący kartofle",
+      "year": 1885,
+      "medium": "Oil on canvas",
+      "location": "Van Gogh Museum, Amsterdam",
+      "locationPl": "Muzeum Van Gogha, Amsterdam",
+      "description": "Early Dutch period masterpiece depicting peasants sharing a modest meal under oil lamps."
+    }
+  ],
+  "impactScore": 9.8,
+  "wikidataId": "Q5582",
+  "relationships": {
+    "influencedBy": ["rembrandt", "monet"],
+    "influenced": ["picasso", "salvador-dali"],
+    "contemporaries": ["monet"],
+    "movements": ["post-impressionism"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Vincent_van_Gogh",
+    "https://www.wikidata.org/wiki/Q5582"
+  ]
+}

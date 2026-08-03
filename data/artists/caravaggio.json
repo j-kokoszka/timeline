@@ -1,0 +1,62 @@
+{
+  "id": "caravaggio",
+  "name": "Caravaggio",
+  "discipline": "painting",
+  "era": "baroque",
+  "birthYear": 1571,
+  "deathYear": 1610,
+  "nationality": "Italian",
+  "nationalityPl": "Włoski",
+  "bio": "Italian painter whose intense and unsettling realism, combined with dramatic theatrical lighting (tenebrism), exerted a decisive influence on Baroque painting.",
+  "bioPl": "Włoski malarz, którego przejmujący realizm powiązany z dramatycznym światłocieniem (tenebryzmem) wywarł decydujący wpływ na sztukę baroku.",
+  "notableWorks": [
+    "The Calling of Saint Matthew",
+    "Judith Beheading Holofernes",
+    "David with the Head of Goliath",
+    "Bacchus"
+  ],
+  "catalog": [
+    {
+      "id": "calling-st-matthew",
+      "title": "The Calling of Saint Matthew",
+      "titlePl": "Powołanie świętego Mateusza",
+      "year": 1600,
+      "medium": "Oil on canvas",
+      "location": "Contarelli Chapel, San Luigi dei Francesi, Rome",
+      "locationPl": "Kaplica Contarelli, Rzym",
+      "description": "Masterpiece of tenebrism showing Christ calling Matthew out of a dark tavern with a beam of divine light."
+    },
+    {
+      "id": "judith-beheading-holofernes",
+      "title": "Judith Beheading Holofernes",
+      "titlePl": "Judyta odcinająca głowę Holofernesowi",
+      "year": 1599,
+      "medium": "Oil on canvas",
+      "location": "Galleria Nazionale d'Arte Antica, Rome",
+      "locationPl": "Galleria Nazionale d'Arte Antica, Rzym",
+      "description": "Dramatic depiction of the biblical heroine Judith severing Holofernes' head."
+    },
+    {
+      "id": "david-goliath",
+      "title": "David with the Head of Goliath",
+      "titlePl": "Dawid z głową Goliata",
+      "year": 1610,
+      "medium": "Oil on canvas",
+      "location": "Borghese Gallery, Rome",
+      "locationPl": "Galeria Borghese, Rzym",
+      "description": "Late dramatic masterpiece featuring Caravaggio's own self-portrait in the severed head of Goliath."
+    }
+  ],
+  "impactScore": 9.6,
+  "wikidataId": "Q42207",
+  "relationships": {
+    "influencedBy": ["leonardo-da-vinci", "michelangelo"],
+    "influenced": ["artemisia-gentileschi", "rembrandt"],
+    "contemporaries": [],
+    "movements": ["baroque"]
+  },
+  "sources": [
+    "https://en.wikipedia.org/wiki/Caravaggio",
+    "https://www.wikidata.org/wiki/Q42207"
+  ]
+}
