@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, X, Sparkles, ExternalLink, Image as ImageIcon } from 'lucide-react';
+import { Search, X, Sparkles, ExternalLink, Image as ImageIcon, PlusCircle } from 'lucide-react';
 import { Language, Artist } from '../../types/timeline';
 import { searchExternalWikipediaEntities, CulturalEntityData } from '../../services/cultureApi';
+import { saveCustomArtist, unhideArtist } from '../../services/userStorage';
 import './GlobalSearchModal.css';
 
 interface GlobalSearchModalProps {
@@ -51,6 +52,36 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   }, [onClose]);
 
   if (!isOpen) return null;
+
+  // Add external Wikipedia entity as a new artist to user's timeline
+  const handleAddExternalEntityToTimeline = (entity: CulturalEntityData) => {
+    const id = entity.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    const newArtist: Artist = {
+      id,
+      name: entity.title,
+      discipline: 'painting',
+      era: 'high-renaissance',
+      birthYear: 1800,
+      deathYear: 1870,
+      nationality: 'Global',
+      bio: entity.summary || '',
+      impactScore: 9.0,
+      notableWorks: [],
+      catalog: [],
+      sources: [],
+      relationships: {
+        influencedBy: [],
+        influenced: [],
+        contemporaries: [],
+        movements: ['high-renaissance']
+      }
+    };
+
+    unhideArtist(id);
+    saveCustomArtist(newArtist);
+    onSelectArtist(newArtist);
+    onClose();
+  };
 
   // Local matching artists
   const localMatches = query.trim()
@@ -118,10 +149,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                   <div style={{ width: 44, height: 44, borderRadius: 6, background: 'rgba(217,167,74,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-gold)', fontWeight: 800 }}>
                     {artist.name.charAt(0)}
                   </div>
-                  <div>
+                  <div style={{ flexGrow: 1 }}>
                     <div className="global-search-item-title">{artist.name} ({artist.birthYear}–{artist.deathYear})</div>
                     <div className="global-search-item-desc">{artist.nationality} • {artist.discipline} • Impact: ★ {artist.impactScore}</div>
                   </div>
+                  <span style={{ fontSize: 12, color: 'var(--accent-gold)', fontWeight: 700 }}>
+                    {lang === 'pl' ? 'Pokaż na Osi' : 'View on Timeline'}
+                  </span>
                 </div>
               ))}
             </div>
@@ -150,7 +184,17 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
                     <div className="global-search-item-title">{item.title}</div>
                     <div className="global-search-item-desc">{item.snippet || item.summary}</div>
                   </div>
-                  <ExternalLink size={14} color="var(--accent-gold)" />
+                  <button
+                    className="secondary-cta-btn"
+                    style={{ padding: '6px 10px', fontSize: 12, flexShrink: 0 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAddExternalEntityToTimeline(item);
+                    }}
+                  >
+                    <PlusCircle size={14} color="var(--accent-gold)" />
+                    <span>{lang === 'pl' ? '+ Dodaj' : '+ Add'}</span>
+                  </button>
                 </div>
               ))}
             </div>
@@ -170,17 +214,29 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
             )}
             <h3 className="lightbox-title">{selectedEntity.title}</h3>
             {selectedEntity.summary && <p className="lightbox-desc">{selectedEntity.summary}</p>}
-            {selectedEntity.wikipediaUrl && (
-              <a
-                href={selectedEntity.wikipediaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="source-link"
-                style={{ width: 'fit-content' }}
+            
+            <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
+              <button
+                className="primary-cta-btn"
+                onClick={() => handleAddExternalEntityToTimeline(selectedEntity)}
+                style={{ padding: '10px 18px', fontSize: 14 }}
               >
-                {lang === 'pl' ? 'Otwórz artykuł na Wikipedii' : 'Open full Wikipedia article'} <ExternalLink size={14} />
-              </a>
-            )}
+                <PlusCircle size={18} />
+                <span>{lang === 'pl' ? 'Dodaj tego mistrza do mojej osi czasu' : 'Add master to my timeline'}</span>
+              </button>
+
+              {selectedEntity.wikipediaUrl && (
+                <a
+                  href={selectedEntity.wikipediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="secondary-cta-btn"
+                  style={{ width: 'fit-content' }}
+                >
+                  Wikipedia <ExternalLink size={14} />
+                </a>
+              )}
+            </div>
           </div>
         </div>
       )}
