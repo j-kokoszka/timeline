@@ -5,6 +5,7 @@ import { ExploreTab } from './components/ExploreTab/ExploreTab';
 import { Timeline } from './components/Timeline/Timeline';
 import { ArtistPanel } from './components/ArtistPanel/ArtistPanel';
 import { SearchFilter } from './components/SearchFilter/SearchFilter';
+import { GlobalSearchModal } from './components/GlobalSearchModal/GlobalSearchModal';
 import { AuthModal } from './components/AuthModal/AuthModal';
 import { HamburgerMenu } from './components/HamburgerMenu/HamburgerMenu';
 import { loadEras, loadArtists } from './lib/dataLoader';
@@ -27,6 +28,7 @@ export function App() {
   const [topMastersOnly, setTopMastersOnly] = useState<boolean>(false);
   const [favoritesOnly, setFavoritesOnly] = useState<boolean>(false);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isGlobalSearchOpen, setIsGlobalSearchOpen] = useState<boolean>(false);
   const [isHamburgerOpen, setIsHamburgerOpen] = useState<boolean>(false);
   const [lang, setLang] = useState<Language>('en');
 
@@ -71,6 +73,18 @@ export function App() {
     }
   }, []);
 
+  // Ctrl+K / Cmd+K Global Search shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsGlobalSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleLearningProgressUpdate = () => {
     setStudiedWorksMap(getStudiedWorks());
     setFavoritesCount(getFavorites().length);
@@ -108,7 +122,7 @@ export function App() {
 
   return (
     <div className="app-container">
-      {/* Clean Header */}
+      {/* Header */}
       <header className="app-header">
         <div className="header-left">
           <h1
@@ -127,14 +141,14 @@ export function App() {
         </div>
 
         <div className="header-actions">
-          {/* Search Toggle Button */}
+          {/* Global Search Command Prompt Button */}
           <button
-            className={`search-toggle-btn ${isSearchOpen ? 'active' : ''}`}
-            onClick={() => setIsSearchOpen(prev => !prev)}
-            title="Search & Filters (Ctrl+K)"
+            className="search-toggle-btn"
+            onClick={() => setIsGlobalSearchOpen(true)}
+            title="Global DB Search & Prompt (Ctrl+K)"
           >
-            <Search size={16} />
-            <span>{lang === 'pl' ? 'Szukaj' : 'Search'}</span>
+            <Search size={16} color="var(--accent-gold)" />
+            <span>{lang === 'pl' ? 'Szukaj w API' : 'Global Search'}</span>
           </button>
 
           {/* All-in-One Hamburger Menu Button */}
@@ -150,7 +164,7 @@ export function App() {
         </div>
       </header>
 
-      {/* Floating Toggleable Search & Filter Bar */}
+      {/* Floating Toggleable Timeline Local Filters Bar */}
       {isSearchOpen && (
         <SearchFilter
           artists={artists}
@@ -216,6 +230,7 @@ export function App() {
             lang={lang}
             onSelectArtist={setSelectedArtist}
             onSelectEra={(era) => setSelectedEraId(era ? era.id : null)}
+            onToggleFilterBar={() => setIsSearchOpen(prev => !prev)}
           />
         )}
 
@@ -231,6 +246,19 @@ export function App() {
           />
         )}
       </main>
+
+      {/* Global External Database Search Modal */}
+      <GlobalSearchModal
+        isOpen={isGlobalSearchOpen}
+        lang={lang}
+        allArtists={allArtists}
+        onClose={() => setIsGlobalSearchOpen(false)}
+        onSelectArtist={(artist) => {
+          if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+          setViewMode('timeline');
+          setSelectedArtist(artist);
+        }}
+      />
 
       {/* Hamburger All-in-One Slide Drawer */}
       <HamburgerMenu
@@ -249,7 +277,7 @@ export function App() {
         }}
         onToggleLang={handleToggleLang}
         onOpenAuth={() => setIsAuthModalOpen(true)}
-        onOpenSearch={() => setIsSearchOpen(true)}
+        onOpenSearch={() => setIsGlobalSearchOpen(true)}
         onOpenExplore={() => setViewMode('explore')}
       />
 

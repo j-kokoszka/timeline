@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
-import { ZoomIn, ZoomOut, RotateCcw, X } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Filter, X } from 'lucide-react';
 import { Artist, Era, Language } from '../../types/timeline';
 import { assignArtistRows, calculateEraLayout, calculateTimelineBounds, formatYear } from '../../lib/layoutMath';
 import { getLocalizedString, getUIText } from '../../lib/i18n';
@@ -20,6 +20,7 @@ interface TimelineProps {
   onlyFavorites: boolean;
   onSelectArtist: (artist: Artist | null) => void;
   onSelectEra: (era: Era | null) => void;
+  onToggleFilterBar?: () => void;
 }
 
 export const Timeline: React.FC<TimelineProps> = ({
@@ -34,7 +35,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   onlyTopMasters,
   onlyFavorites,
   onSelectArtist,
-  onSelectEra
+  onSelectEra,
+  onToggleFilterBar
 }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -616,8 +618,13 @@ export const Timeline: React.FC<TimelineProps> = ({
         </div>
       )}
 
-      {/* Floating Zoom Controls */}
+      {/* Floating Zoom & Filter Controls */}
       <div className="timeline-controls">
+        {onToggleFilterBar && (
+          <button className="control-btn" onClick={onToggleFilterBar} title={lang === 'pl' ? 'Filtry Osi Czasu' : 'Timeline Filters'}>
+            <Filter size={18} color="var(--accent-gold)" />
+          </button>
+        )}
         <button className="control-btn" onClick={handleZoomIn} title={getUIText('zoomIn', lang)}>
           <ZoomIn size={18} />
         </button>
