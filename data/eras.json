@@ -444,5 +444,126 @@
     "tier": 3,
     "description": "German art school combining fine arts, design, and architecture founded by Walter Gropius.",
     "descriptionPl": "Niemiecka uczelnia artystyczno-rzemieślnicza łącząca sztukę, design i architekturę."
+  },
+
+  {
+    "id": "music-medieval",
+    "name": "Medieval Music",
+    "namePl": "Muzyka Średniowieczna",
+    "discipline": "music",
+    "startYear": 500,
+    "endYear": 1400,
+    "color": "#7c3aed",
+    "tier": 1,
+    "description": "Gregorian chant, organum, troubadours, and the Ars Nova of Guillaume de Machaut.",
+    "descriptionPl": "Chorał gregoriański, organum, trubadurzy i Ars Nova Guillaume'a de Machaut."
+  },
+  {
+    "id": "music-renaissance",
+    "name": "Renaissance Music",
+    "namePl": "Muzyka Renesansowa",
+    "discipline": "music",
+    "startYear": 1400,
+    "endYear": 1600,
+    "color": "#c4883b",
+    "tier": 1,
+    "description": "Polyphonic masses, motets and madrigals by Josquin, Palestrina, and Monteverdi.",
+    "descriptionPl": "Polifoniczne msze, motety i madrygały Josquina, Palestriny i Monteverdiego."
+  },
+  {
+    "id": "music-baroque",
+    "name": "Baroque Music",
+    "namePl": "Muzyka Barokowa",
+    "discipline": "music",
+    "startYear": 1600,
+    "endYear": 1750,
+    "color": "#e05638",
+    "tier": 1,
+    "description": "Birth of opera, concerto grosso, fugue, and oratorio. Bach, Handel, Vivaldi.",
+    "descriptionPl": "Narodziny opery, concerto grosso, fugi i oratorium. Bach, Händel, Vivaldi."
+  },
+  {
+    "id": "music-classical",
+    "name": "Classical Period",
+    "namePl": "Klasycyzm Muzyczny",
+    "discipline": "music",
+    "startYear": 1750,
+    "endYear": 1820,
+    "color": "#e883a7",
+    "tier": 1,
+    "description": "Sonata form, symphony, and string quartet perfected by Haydn, Mozart, and early Beethoven.",
+    "descriptionPl": "Forma sonatowa, symfonia i kwartet smyczkowy doskonalone przez Haydna, Mozarta i wczesnego Beethovena."
+  },
+  {
+    "id": "music-romantic",
+    "name": "Romantic Music",
+    "namePl": "Muzyka Romantyczna",
+    "discipline": "music",
+    "startYear": 1800,
+    "endYear": 1910,
+    "color": "#dc2626",
+    "tier": 1,
+    "description": "Emotional expression, nationalistic themes, virtuoso pianism. Chopin, Liszt, Wagner, Brahms, Moniuszko, Tchaikovsky.",
+    "descriptionPl": "Ekspresja emocjonalna, wątki narodowe, wirtuozeria fortepianowa. Chopin, Liszt, Wagner, Brahms, Moniuszko, Czajkowski."
+  },
+  {
+    "id": "music-nationalism",
+    "name": "Musical Nationalism",
+    "namePl": "Nacjonalizm Muzyczny",
+    "discipline": "music",
+    "startYear": 1830,
+    "endYear": 1910,
+    "color": "#b91c1c",
+    "tier": 2,
+    "description": "National opera and folk-inspired orchestral works. Moniuszko, Smetana, Dvořák, Grieg, Sibelius.",
+    "descriptionPl": "Opera narodowa i dzieła orkiestrowe inspirowane folklorem. Moniuszko, Smetana, Dvořák, Grieg, Sibelius."
+  },
+  {
+    "id": "music-late-romantic",
+    "name": "Late Romanticism",
+    "namePl": "Późny Romantyzm",
+    "discipline": "music",
+    "startYear": 1870,
+    "endYear": 1920,
+    "color": "#a21caf",
+    "tier": 2,
+    "description": "Monumental symphonies and tone poems. Mahler, Strauss, Rachmaninoff, Puccini.",
+    "descriptionPl": "Monumentalne symfonie i poematy symfoniczne. Mahler, Strauss, Rachmaninow, Puccini."
+  },
+  {
+    "id": "music-impressionist",
+    "name": "Impressionist Music",
+    "namePl": "Impresjonizm Muzyczny",
+    "discipline": "music",
+    "startYear": 1890,
+    "endYear": 1930,
+    "color": "#7dd3fc",
+    "tier": 2,
+    "description": "Tonal ambiguity, whole-tone scales, and atmospheric textures. Debussy, Ravel.",
+    "descriptionPl": "Niejednoznaczność tonalna, skale całotonowe i atmosferyczne tekstury. Debussy, Ravel."
+  },
+  {
+    "id": "music-modern",
+    "name": "Modern & Avant-Garde",
+    "namePl": "Muzyka Nowoczesna i Awangardowa",
+    "discipline": "music",
+    "startYear": 1900,
+    "endYear": 1970,
+    "color": "#f97316",
+    "tier": 1,
+    "description": "Atonality, serialism, neoclassicism, aleatory music. Stravinsky, Schoenberg, Bartók, Penderecki, Cage.",
+    "descriptionPl": "Atonalność, serializm, neoklasycyzm, aleatoryzm. Strawiński, Schönberg, Bartók, Penderecki, Cage."
+  },
+  {
+    "id": "music-contemporary",
+    "name": "Contemporary Music",
+    "namePl": "Muzyka Współczesna",
+    "discipline": "music",
+    "startYear": 1950,
+    "endYear": 2030,
+    "color": "#06b6d4",
+    "tier": 1,
+    "description": "Minimalism, spectral music, electronic composition, and postmodernism. Glass, Pärt, Górecki, Lutosławski.",
+    "descriptionPl": "Minimalizm, muzyka spektralna, kompozycja elektroniczna i postmodernizm. Glass, Pärt, Górecki, Lutosławski."
   }
 ]
