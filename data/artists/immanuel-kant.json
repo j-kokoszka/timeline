@@ -1,0 +1,25 @@
+{
+  "id": "immanuel-kant",
+  "name": "Immanuel Kant",
+  "namePl": "Immanuel Kant",
+  "discipline": "philosophy",
+  "era": "phil-idealism",
+  "birthYear": 1724,
+  "deathYear": 1804,
+  "nationality": "German",
+  "nationalityPl": "Niemiec",
+  "bio": "German philosopher and central Enlightenment thinker. Formulated the categorical imperative and transcendental idealism.",
+  "bioPl": "Niemiecki filozof i czołowy myśliciel Oświecenia. Twórca imperatywu kategorycznego i idealizmu transcendentalnego.",
+  "notableWorks": ["Critique of Pure Reason", "Critique of Practical Reason", "Groundwork of the Metaphysics of Morals"],
+  "notableWorksPl": ["Krytyka czystego rozumu", "Krytyka praktycznego rozumu", "Uzasadnienie metafizyki moralności"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q9312",
+  "relationships": {
+    "influencedBy": ["david-hume", "rene-descartes", "john-locke"],
+    "influenced": ["hegel", "friedrich-nietzsche", "schopenhauer"],
+    "contemporaries": ["johann-wolfgang-von-goethe"],
+    "movements": ["phil-idealism"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Immanuel_Kant"]
+}

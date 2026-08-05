@@ -1,0 +1,25 @@
+{
+  "id": "dieterich-buxtehude",
+  "name": "Dieterich Buxtehude",
+  "namePl": "Dieterich Buxtehude",
+  "discipline": "music",
+  "era": "music-baroque",
+  "birthYear": 1637,
+  "deathYear": 1707,
+  "nationality": "German-Danish",
+  "nationalityPl": "Duńsko-Niemiecki",
+  "bio": "German-Danish organist and highly influential composer of the Baroque era. His organ and vocal works greatly influenced Johann Sebastian Bach.",
+  "bioPl": "Niemiecko-duński organista i kompozytor okresu baroku. Jego luteranizm, kompozycje organowe i wokalne miały przemożny wpływ na młodego Johanna Sebastiana Bacha.",
+  "notableWorks": ["Membra Jesu Nostri", "Passacaglia in D minor (BuxWV 161)", "Toccata in F major (BuxWV 156)", "Chorale Fantasia 'Nun freut euch'"],
+  "notableWorksPl": ["Membra Jesu Nostri", "Passacaglia d-moll (BuxWV 161)", "Toccata F-dur (BuxWV 156)", "Fantazja chorałowa 'Nun freut euch'"],
+  "imageUrl": null,
+  "impactScore": 9.4,
+  "wikidataId": "Q152865",
+  "relationships": {
+    "influencedBy": ["heinrich-schutz"],
+    "influenced": ["johann-sebastian-bach", "georg-philipp-telemann"],
+    "contemporaries": ["heinrich-biber", "arcangelo-corelli", "henry-purcell"],
+    "movements": ["music-baroque"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Dieterich_Buxtehude"]
+}

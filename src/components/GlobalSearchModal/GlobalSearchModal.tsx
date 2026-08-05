@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, Sparkles, ExternalLink, Image as ImageIcon, PlusCircle } from 'lucide-react';
 import { Language, Artist, Era } from '../../types/timeline';
-import { searchExternalWikipediaEntities, autoDetectArtistDetails, CulturalEntityData } from '../../services/cultureApi';
+import { searchExternalWikipediaEntities, autoDetectArtistDetails, autoExtractNotableWorks, autoGenerateRelationships, CulturalEntityData } from '../../services/cultureApi';
 import { saveCustomArtist, unhideArtist } from '../../services/userStorage';
 import './GlobalSearchModal.css';
 
@@ -56,45 +56,98 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   if (!isOpen) return null;
 
   // Add external Wikipedia entity as a new artist to user's timeline
-  const handleAddExternalEntityToTimeline = (entity: CulturalEntityData) => {
-    const id = entity.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-    const detected = autoDetectArtistDetails(entity.title, entity.summary, allEras);
+  const handleAddExternalEntityToTimeline = async (entity: CulturalEntityData) => {
+    const normId = entity.title
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-');
 
-    // Prepend real discipline label if it differs from the timeline discipline
+    // 1. Check if artist already exists in dataset (by ID or name)
+    const existing = allArtists.find(a => {
+      const aNormId = a.id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+      const aNormName = a.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+      return aNormId === normId || aNormName === normId;
+    });
+
+    if (existing) {
+      unhideArtist(existing.id);
+      onSelectArtist(existing);
+      onClose();
+      return;
+    }
+
+    // 2. Auto-detect details & extract works from API + text
+    const rawText = `${entity.title} ${entity.description || ''} ${entity.summary || ''} ${entity.snippet || ''}`;
+    const detected = autoDetectArtistDetails(entity.title, rawText, allEras);
+
+    if (!detected) {
+      alert(lang === 'pl'
+        ? `⚠️ Nie udało się automatycznie odczytać dat życia dla "${entity.title}" z Wikipedii. Użyj formularza "Dodaj Nowego Mistrza", aby wpisać lata ręcznie.`
+        : `⚠️ Could not automatically verify lifespan dates for "${entity.title}" from Wikipedia. Please use the "Add Custom Master" form to specify birth & death years.`
+      );
+      return;
+    }
+
+    const notableWorks = await autoExtractNotableWorks(entity.title, rawText);
+
     const bioPrefix = detected.realDiscipline !== 'Painting'
       ? `[${detected.realDiscipline}] `
       : '';
 
-    const newArtist: Artist = {
-      id,
+    const tempArtist = {
+      id: normId,
       name: entity.title,
-      discipline: detected.discipline,
-      era: detected.eraId,
       birthYear: detected.birthYear,
       deathYear: detected.deathYear,
-      nationality: 'Global',
-      bio: bioPrefix + (entity.summary || ''),
-      impactScore: 9.0,
-      notableWorks: [],
-      catalog: [],
-      sources: [],
-      relationships: {
-        influencedBy: [],
-        influenced: [],
-        contemporaries: [],
-        movements: [detected.eraId]
-      }
+      discipline: detected.discipline,
+      bio: bioPrefix + (entity.summary || entity.snippet || ''),
+      eraId: detected.eraId
     };
 
-    unhideArtist(id);
+    const relationships = autoGenerateRelationships(tempArtist, allArtists);
+
+    const newArtist: Artist = {
+      ...tempArtist,
+      era: detected.eraId,
+      nationality: 'Global',
+      impactScore: 9.0,
+      notableWorks,
+      catalog: notableWorks.map((work, idx) => ({
+        id: `${normId}-work-${idx}`,
+        title: work,
+        year: Math.round(detected.birthYear + (detected.deathYear - detected.birthYear) * 0.5),
+        medium: `${detected.realDiscipline} / Masterwork`
+      })),
+      sources: entity.wikipediaUrl ? [entity.wikipediaUrl] : [],
+      relationships
+    };
+
+    unhideArtist(normId);
     saveCustomArtist(newArtist);
     onSelectArtist(newArtist);
     onClose();
   };
 
-  // Local matching artists
+  // Local matching artists with typo-tolerant fuzzy matching
   const localMatches = query.trim()
-    ? allArtists.filter(a => a.name.toLowerCase().includes(query.toLowerCase()))
+    ? allArtists.filter(a => {
+        const nameNorm = a.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const qNorm = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+        if (nameNorm.includes(qNorm) || qNorm.includes(nameNorm)) return true;
+
+        if (qNorm.length >= 4) {
+          let matches = 0;
+          for (let i = 0; i < qNorm.length - 1; i++) {
+            const sub = qNorm.substring(i, i + 2);
+            if (nameNorm.includes(sub)) matches++;
+          }
+          return (matches / (qNorm.length - 1)) >= 0.6;
+        }
+        return false;
+      })
     : [];
 
   return (
@@ -176,36 +229,75 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
               <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-gold)', letterSpacing: '0.08em' }}>
                 🌐 Global External Database (Wikipedia API)
               </span>
-              {results.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="global-search-item"
-                  onClick={() => setSelectedEntity(item)}
-                >
-                  {item.thumbnailUrl ? (
-                    <img src={item.thumbnailUrl} alt={item.title} className="global-search-item-img" referrerPolicy="no-referrer" />
-                  ) : (
-                    <div className="global-search-item-img" style={{ background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <ImageIcon size={20} color="var(--text-muted)" />
-                    </div>
-                  )}
-                  <div style={{ flexGrow: 1 }}>
-                    <div className="global-search-item-title">{item.title}</div>
-                    <div className="global-search-item-desc">{item.snippet || item.summary}</div>
-                  </div>
-                  <button
-                    className="secondary-cta-btn"
-                    style={{ padding: '6px 10px', fontSize: 12, flexShrink: 0 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddExternalEntityToTimeline(item);
+              {results.map((item, idx) => {
+                const existingArtist = allArtists.find(a => {
+                  const normId = item.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+                  const aNormId = a.id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+                  const aNormName = a.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+                  return aNormId === normId || aNormName === normId;
+                });
+
+                return (
+                  <div
+                    key={idx}
+                    className="global-search-item"
+                    onClick={() => {
+                      if (existingArtist) {
+                        unhideArtist(existingArtist.id);
+                        onSelectArtist(existingArtist);
+                        onClose();
+                      } else {
+                        setSelectedEntity(item);
+                      }
                     }}
                   >
-                    <PlusCircle size={14} color="var(--accent-gold)" />
-                    <span>{lang === 'pl' ? '+ Dodaj' : '+ Add'}</span>
-                  </button>
-                </div>
-              ))}
+                    {item.thumbnailUrl ? (
+                      <img src={item.thumbnailUrl} alt={item.title} className="global-search-item-img" referrerPolicy="no-referrer" />
+                    ) : (
+                      <div className="global-search-item-img" style={{ background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ImageIcon size={20} color="var(--text-muted)" />
+                      </div>
+                    )}
+                    <div style={{ flexGrow: 1 }}>
+                      <div className="global-search-item-title">
+                        {item.title}
+                        {existingArtist && (
+                          <span style={{ fontSize: 10, marginLeft: 8, color: 'var(--accent-gold)', background: 'rgba(217,167,74,0.15)', padding: '2px 6px', borderRadius: 4 }}>
+                            ✓ {lang === 'pl' ? 'W Bazie' : 'In Timeline'}
+                          </span>
+                        )}
+                      </div>
+                      <div className="global-search-item-desc">{item.snippet || item.summary}</div>
+                    </div>
+                    {existingArtist ? (
+                      <button
+                        className="secondary-cta-btn"
+                        style={{ padding: '6px 10px', fontSize: 12, flexShrink: 0, borderColor: 'var(--accent-gold)', color: 'var(--accent-gold)' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          unhideArtist(existingArtist.id);
+                          onSelectArtist(existingArtist);
+                          onClose();
+                        }}
+                      >
+                        <span>{lang === 'pl' ? '✓ Pokaż na Osi' : '✓ View'}</span>
+                      </button>
+                    ) : (
+                      <button
+                        className="secondary-cta-btn"
+                        style={{ padding: '6px 10px', fontSize: 12, flexShrink: 0 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddExternalEntityToTimeline(item);
+                        }}
+                      >
+                        <PlusCircle size={14} color="var(--accent-gold)" />
+                        <span>{lang === 'pl' ? '+ Dodaj' : '+ Add'}</span>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

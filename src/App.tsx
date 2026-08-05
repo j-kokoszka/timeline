@@ -18,9 +18,11 @@ import { getFavorites, deleteCustomArtist } from './services/userStorage';
 import { Search, Menu } from 'lucide-react';
 import './App.css';
 
+const ALL_DISCIPLINES: Discipline[] = ['painting', 'music', 'literature', 'philosophy', 'architecture', 'sculpture'];
+
 export function App() {
-  const [viewMode, setViewMode] = useState<'home' | 'timeline' | 'explore'>('home');
-  const [activeDiscipline, setActiveDiscipline] = useState<Discipline>('painting');
+  const [viewMode, setViewMode] = useState<'home' | 'timeline' | 'explore'>('timeline');
+  const [activeDisciplines, setActiveDisciplines] = useState<Discipline[]>(ALL_DISCIPLINES);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
   const [selectedEraId, setSelectedEraId] = useState<string | null>(null);
 
@@ -55,9 +57,22 @@ export function App() {
     return loadArtists();
   }, [artistVersion]);
 
-  // Filter items by discipline
-  const eras = useMemo(() => allEras.filter(e => e.discipline === activeDiscipline), [allEras, activeDiscipline]);
-  const artists = useMemo(() => allArtists.filter(a => a.discipline === activeDiscipline), [allArtists, activeDiscipline]);
+  // Filter items by active disciplines
+  const eras = useMemo(() => allEras.filter(e => activeDisciplines.includes(e.discipline)), [allEras, activeDisciplines]);
+  const artists = useMemo(() => allArtists.filter(a => activeDisciplines.includes(a.discipline)), [allArtists, activeDisciplines]);
+
+  const handleToggleDiscipline = (disc: Discipline) => {
+    setActiveDisciplines(prev => {
+      if (prev.length === ALL_DISCIPLINES.length) {
+        return [disc];
+      }
+      if (prev.includes(disc)) {
+        if (prev.length === 1) return ALL_DISCIPLINES;
+        return prev.filter(d => d !== disc);
+      }
+      return [...prev, disc];
+    });
+  };
 
   // Total count of masterworks across current dataset
   const totalMasterworksCount = useMemo(() => {
@@ -109,16 +124,16 @@ export function App() {
   };
 
   const handleSelectArtistFromSearch = (artist: Artist) => {
-    if (artist.discipline !== activeDiscipline) {
-      setActiveDiscipline(artist.discipline);
+    if (!activeDisciplines.includes(artist.discipline)) {
+      setActiveDisciplines(prev => [...prev, artist.discipline]);
     }
     setViewMode('timeline');
     setSelectedArtist(artist);
   };
 
   const handleSelectEraFromSearch = (era: Era) => {
-    if (era.discipline !== activeDiscipline) {
-      setActiveDiscipline(era.discipline);
+    if (!activeDisciplines.includes(era.discipline)) {
+      setActiveDisciplines(prev => [...prev, era.discipline]);
     }
     setViewMode('timeline');
     setSelectedEraId(era.id);
@@ -161,7 +176,7 @@ export function App() {
         </div>
 
         <div className="header-actions">
-          {/* Upper Bar Search Button (Opens Centered Spotlight Prompt) */}
+          {/* Upper Bar Search Button */}
           <button
             className="auth-header-btn"
             onClick={() => setIsGlobalSearchOpen(true)}
@@ -184,6 +199,33 @@ export function App() {
           </button>
         </div>
       </header>
+
+      {/* Multi-Discipline Swimlane Toggles Bar */}
+      {viewMode === 'timeline' && (
+        <div className="discipline-bar">
+          <button
+            className={`discipline-chip ${activeDisciplines.length === ALL_DISCIPLINES.length ? 'active' : ''}`}
+            onClick={() => setActiveDisciplines(ALL_DISCIPLINES)}
+          >
+            🌐 {lang === 'pl' ? 'Wszystkie Dziedziny (Połączone)' : 'All Disciplines (Merged Lanes)'}
+          </button>
+          {ALL_DISCIPLINES.map(disc => (
+            <button
+              key={disc}
+              className={`discipline-chip ${activeDisciplines.includes(disc) && activeDisciplines.length < ALL_DISCIPLINES.length ? 'active' : ''}`}
+              onClick={() => handleToggleDiscipline(disc)}
+            >
+              {disc === 'painting' && '🎨'}
+              {disc === 'music' && '🎵'}
+              {disc === 'literature' && '📖'}
+              {disc === 'philosophy' && '💡'}
+              {disc === 'architecture' && '🏛️'}
+              {disc === 'sculpture' && '🗿'}{' '}
+              {getUIText(disc as any, lang)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Floating Toggleable Timeline Local Filters Bar */}
       {isSearchOpen && (
@@ -217,12 +259,13 @@ export function App() {
             favoritesCount={favoritesCount}
             allArtists={allArtists}
             onNavigateToTimeline={(disc) => {
-              if (disc) setActiveDiscipline(disc);
+              if (disc) setActiveDisciplines([disc]);
+              else setActiveDisciplines(ALL_DISCIPLINES);
               setViewMode('timeline');
             }}
             onOpenAuth={() => setIsAuthModalOpen(true)}
             onSelectArtist={(artist) => {
-              if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+              if (!activeDisciplines.includes(artist.discipline)) setActiveDisciplines(prev => [...prev, artist.discipline]);
               setViewMode('timeline');
               setSelectedArtist(artist);
             }}
@@ -232,7 +275,7 @@ export function App() {
             lang={lang}
             allArtists={allArtists}
             onSelectArtist={(artist) => {
-              if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+              if (!activeDisciplines.includes(artist.discipline)) setActiveDisciplines(prev => [...prev, artist.discipline]);
               setViewMode('timeline');
               setSelectedArtist(artist);
             }}
@@ -278,7 +321,7 @@ export function App() {
         onClose={() => setIsGlobalSearchOpen(false)}
         onSelectArtist={(artist) => {
           setArtistVersion(v => v + 1);
-          if (artist.discipline !== activeDiscipline) setActiveDiscipline(artist.discipline);
+          if (!activeDisciplines.includes(artist.discipline)) setActiveDisciplines(prev => [...prev, artist.discipline]);
           setViewMode('timeline');
           setSelectedArtist(artist);
         }}
@@ -292,7 +335,7 @@ export function App() {
         onClose={() => setIsAddArtistOpen(false)}
         onArtistAdded={(newArtist) => {
           setArtistVersion(v => v + 1);
-          if (newArtist.discipline !== activeDiscipline) setActiveDiscipline(newArtist.discipline);
+          if (!activeDisciplines.includes(newArtist.discipline)) setActiveDisciplines(prev => [...prev, newArtist.discipline]);
           setViewMode('timeline');
           setSelectedArtist(newArtist);
         }}
@@ -301,14 +344,14 @@ export function App() {
       {/* Hamburger All-in-One Slide Drawer */}
       <HamburgerMenu
         isOpen={isHamburgerOpen}
-        activeDiscipline={activeDiscipline}
+        activeDiscipline={activeDisciplines[0] || 'painting'}
         lang={lang}
         user={currentUser}
         studiedCount={activeStudiedCount}
         totalWorksCount={totalMasterworksCount}
         onClose={() => setIsHamburgerOpen(false)}
         onSelectDiscipline={(disc) => {
-          setActiveDiscipline(disc);
+          setActiveDisciplines([disc]);
           setViewMode('timeline');
           setSelectedArtist(null);
           setSelectedEraId(null);

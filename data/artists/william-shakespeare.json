@@ -1,0 +1,25 @@
+{
+  "id": "william-shakespeare",
+  "name": "William Shakespeare",
+  "namePl": "William Szekspir",
+  "discipline": "literature",
+  "era": "lit-renaissance",
+  "birthYear": 1564,
+  "deathYear": 1616,
+  "nationality": "English",
+  "nationalityPl": "Anglik",
+  "bio": "English playwright, poet, and actor. Widely regarded as the greatest writer in the English language and the world's pre-eminent dramatist.",
+  "bioPl": "Angielski dramaturg, poeta i aktor. Powszechnie uważany za najwybitniejszego pisarza języka angielskiego i czołowego dramaturga świata.",
+  "notableWorks": ["Hamlet", "Romeo and Juliet", "Macbeth", "Othello", "Sonnets"],
+  "notableWorksPl": ["Hamlet", "Romeo i Julia", "Makbet", "Otello", "Sonety"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q692",
+  "relationships": {
+    "influencedBy": ["lit-ancient"],
+    "influenced": ["johann-wolfgang-von-goethe", "lord-byron", "fyodor-dostoevsky"],
+    "contemporaries": ["miguel-de-cervantes"],
+    "movements": ["lit-renaissance"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/William_Shakespeare"]
+}

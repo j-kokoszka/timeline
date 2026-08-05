@@ -1,0 +1,25 @@
+{
+  "id": "aristotle",
+  "name": "Aristotle",
+  "namePl": "Arystoteles",
+  "discipline": "philosophy",
+  "era": "phil-ancient",
+  "birthYear": -384,
+  "deathYear": -322,
+  "nationality": "Greek",
+  "nationalityPl": "Greka",
+  "bio": "Ancient Greek philosopher and polymath. His writings cover physics, biology, zoology, metaphysics, poetry, music, logic, ethics, and politics.",
+  "bioPl": "Grecki filozof i polihistor. Jego prace obejmują fizykę, biologię, metafizykę, poetykę, logikę, etykę i politykę.",
+  "notableWorks": ["Nicomachean Ethics", "Metaphysics", "Poetics", "Politics"],
+  "notableWorksPl": ["Etyka nikomachejska", "Metafizyka", "Poetyka", "Polityka"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q868",
+  "relationships": {
+    "influencedBy": ["plato"],
+    "influenced": ["thomas-aquinas", "rene-descartes"],
+    "contemporaries": ["alexander-the-great"],
+    "movements": ["phil-ancient"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Aristotle"]
+}

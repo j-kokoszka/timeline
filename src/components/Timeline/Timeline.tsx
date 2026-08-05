@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { ZoomIn, ZoomOut, RotateCcw, Filter, X } from 'lucide-react';
-import { Artist, Era, Language } from '../../types/timeline';
+import { Artist, Era, Language, Discipline, PositionedArtist, PositionedEra } from '../../types/timeline';
 import { assignArtistRows, calculateEraLayout, calculateTimelineBounds, formatYear } from '../../lib/layoutMath';
 import { getLocalizedString, getUIText } from '../../lib/i18n';
 import { getFavorites } from '../../services/userStorage';
@@ -46,7 +46,6 @@ export const Timeline: React.FC<TimelineProps> = ({
   const [hoveredArtist, setHoveredArtist] = useState<{ artist: Artist; x: number; y: number } | null>(null);
 
   const bounds = useMemo(() => calculateTimelineBounds(eras, artists), [eras, artists]);
-  const positionedArtists = useMemo(() => assignArtistRows(artists), [artists]);
 
   // Update container size on window resize
   useEffect(() => {
@@ -63,21 +62,41 @@ export const Timeline: React.FC<TimelineProps> = ({
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Set up D3 zoom behavior
+  // Set up D3 zoom behavior with intelligent vertical scroll vs zoom handling
   const zoomBehavior = useMemo(() => {
     return d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.5, 20])
+      .filter((event) => {
+        if (event.type === 'mousedown' || event.type === 'touchstart' || event.type === 'touchmove') {
+          return true;
+        }
+        if (event.type === 'wheel') {
+          return event.ctrlKey || event.metaKey;
+        }
+        return true;
+      })
       .on('zoom', (event) => {
         setTransform(event.transform);
       });
   }, []);
 
+  // Helper to compute initial zoom transform focused on the far-right (Modern / Contemporary Era)
+  const getFarRightTransform = (width: number, boundsObj: { minYear: number; maxYear: number }) => {
+    const k = 2.0;
+    const baseScale = d3.scaleLinear()
+      .domain([boundsObj.minYear, boundsObj.maxYear])
+      .range([100, Math.max(800, width - 80)]);
+    const maxX = baseScale(boundsObj.maxYear);
+    const tx = (width - 150) - k * maxX;
+    return d3.zoomIdentity.translate(tx, 0).scale(k);
+  };
+
   useEffect(() => {
-    if (svgRef.current) {
-      const initialTransform = d3.zoomIdentity.scale(2.0); // Start on Level 2 of detail
+    if (svgRef.current && dimensions.width > 0) {
+      const initialTransform = getFarRightTransform(dimensions.width, bounds);
       d3.select(svgRef.current).call(zoomBehavior).call(zoomBehavior.transform, initialTransform);
     }
-  }, [zoomBehavior]);
+  }, [zoomBehavior, dimensions.width, bounds]);
 
   // Zoom control handlers
   const handleZoomIn = () => {
@@ -93,8 +112,8 @@ export const Timeline: React.FC<TimelineProps> = ({
   };
 
   const handleResetZoom = () => {
-    if (svgRef.current) {
-      const initialTransform = d3.zoomIdentity.scale(2.0);
+    if (svgRef.current && dimensions.width > 0) {
+      const initialTransform = getFarRightTransform(dimensions.width, bounds);
       d3.select(svgRef.current).transition().duration(400).call(zoomBehavior.transform, initialTransform);
     }
   };
@@ -116,14 +135,10 @@ export const Timeline: React.FC<TimelineProps> = ({
     return 3; // Level 3 (Schools) appears at k >= 4.2
   }, [transform.k]);
 
-  // Automatic sub-row era layout
-  const eraLayout = useMemo(() => calculateEraLayout(eras, lodTier, 48), [eras, lodTier]);
-
   // Helper to test if artist belongs to selected era or movement
   const isArtistInEra = (artist: Artist, targetEra: Era) => {
     if (artist.era === targetEra.id) return true;
     if (artist.relationships.movements.includes(targetEra.id)) return true;
-    // Macro era check
     if (targetEra.tier === 1 && artist.birthYear <= targetEra.endYear && artist.deathYear >= targetEra.startYear) {
       return true;
     }
@@ -136,31 +151,22 @@ export const Timeline: React.FC<TimelineProps> = ({
   // Search & Filter matching logic
   const isArtistMatch = useMemo(() => {
     return (artist: Artist) => {
-      // Top Masters filter
       if (onlyTopMasters) {
         if (!artist.impactScore || artist.impactScore < 9.5) return false;
       }
-
-      // Favorites filter
       if (onlyFavorites) {
         if (!userFavs.includes(artist.id)) return false;
       }
-
-      // Nationality filter
       if (selectedNationality) {
         const nat = getLocalizedString(artist, 'nationality', lang) || artist.nationality;
         if (nat !== selectedNationality) return false;
       }
-
-      // Century filter
       if (selectedCentury) {
         const targetCent = parseInt(selectedCentury, 10);
         const birthCent = Math.floor(artist.birthYear / 100);
         const deathCent = Math.floor(artist.deathYear / 100);
         if (birthCent !== targetCent && deathCent !== targetCent) return false;
       }
-
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const name = getLocalizedString(artist, 'name', lang).toLowerCase();
@@ -168,10 +174,80 @@ export const Timeline: React.FC<TimelineProps> = ({
         const bio = getLocalizedString(artist, 'bio', lang).toLowerCase();
         if (!name.includes(q) && !works.includes(q) && !bio.includes(q)) return false;
       }
-
       return true;
     };
   }, [searchQuery, selectedNationality, selectedCentury, onlyTopMasters, onlyFavorites, userFavs, lang]);
+
+  // Dynamic multi-discipline swimlanes layout
+  const swimlanes = useMemo(() => {
+    const disciplineOrder: Discipline[] = ['painting', 'music', 'literature', 'philosophy', 'architecture', 'sculpture'];
+    const disciplineIcons: Record<string, string> = {
+      painting: '🎨',
+      music: '🎵',
+      literature: '📖',
+      philosophy: '💡',
+      architecture: '🏛️',
+      sculpture: '🗿'
+    };
+
+    let currentY = 50;
+    const lanes: Array<{
+      discipline: Discipline;
+      title: string;
+      icon: string;
+      headerY: number;
+      positionedEras: PositionedEra[];
+      positionedArtists: Array<PositionedArtist & { y: number }>;
+      axisY: number;
+    }> = [];
+
+    const allPositionedArtists: Array<PositionedArtist & { y: number }> = [];
+    const allPositionedEras: PositionedEra[] = [];
+
+    for (const disc of disciplineOrder) {
+      const discEras = eras.filter(e => e.discipline === disc);
+      const discArtists = artists.filter(a => a.discipline === disc);
+
+      if (discEras.length === 0 && discArtists.length === 0) continue;
+
+      const eraLayout = calculateEraLayout(discEras, lodTier, currentY + 22);
+      const axisY = eraLayout.headerBottomY + 10;
+      const artistStartY = axisY + 30;
+
+      const posDiscArtists = assignArtistRows(discArtists);
+      const posDiscArtistsWithY = posDiscArtists.map(a => ({
+        ...a,
+        y: artistStartY + a.row * 42
+      }));
+
+      const maxRow = posDiscArtists.reduce((max, a) => Math.max(max, a.row), -1);
+      const artistSectionHeight = maxRow >= 0 ? (maxRow + 1) * 42 + 20 : 30;
+
+      lanes.push({
+        discipline: disc,
+        title: getUIText(disc as any, lang),
+        icon: disciplineIcons[disc] || '🎨',
+        headerY: currentY,
+        positionedEras: eraLayout.positionedEras,
+        positionedArtists: posDiscArtistsWithY,
+        axisY
+      });
+
+      allPositionedArtists.push(...posDiscArtistsWithY);
+      allPositionedEras.push(...eraLayout.positionedEras);
+
+      currentY = (artistStartY + artistSectionHeight) + 30;
+    }
+
+    return {
+      lanes,
+      allPositionedArtists,
+      allPositionedEras,
+      totalHeight: Math.max(dimensions.height, currentY + 40)
+    };
+  }, [eras, artists, lodTier, dimensions.height, lang]);
+
+  const positionedArtists = swimlanes.allPositionedArtists;
 
   // Active filter flag
   const isFilterActive = searchQuery || selectedNationality || selectedCentury || onlyTopMasters || onlyFavorites;
@@ -206,10 +282,6 @@ export const Timeline: React.FC<TimelineProps> = ({
     return list;
   }, [bounds, transform.k]);
 
-  // Vertical Layout Constants
-  const axisY = eraLayout.headerBottomY + 12;
-  const artistStartY = axisY + 40;
-  const rowHeight = 42;
   const rectHeight = 32;
 
   // Calculate visual connection curves for selected artist
@@ -222,7 +294,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     const selX1 = xScale(activeSelArtist.birthYear);
     const selX2 = xScale(activeSelArtist.deathYear);
     const selX = (selX1 + selX2) / 2;
-    const selY = artistStartY + activeSelArtist.row * rowHeight + rectHeight / 2;
+    const selY = activeSelArtist.y + rectHeight / 2;
 
     const curves: { id: string; d: string; type: 'influencedBy' | 'influenced' | 'contemporaries'; marker: string }[] = [];
 
@@ -234,7 +306,7 @@ export const Timeline: React.FC<TimelineProps> = ({
       const tX1 = xScale(targetArtist.birthYear);
       const tX2 = xScale(targetArtist.deathYear);
       const tX = (tX1 + tX2) / 2;
-      const tY = artistStartY + targetArtist.row * rowHeight + rectHeight / 2;
+      const tY = targetArtist.y + rectHeight / 2;
 
       let startX = selX;
       let startY = selY;
@@ -274,7 +346,7 @@ export const Timeline: React.FC<TimelineProps> = ({
     selectedArtist.relationships.contemporaries.forEach(id => buildCurve(id, 'contemporaries'));
 
     return curves;
-  }, [selectedArtist, positionedArtists, xScale, artistStartY, rowHeight, rectHeight]);
+  }, [selectedArtist, positionedArtists, xScale, rectHeight]);
 
   return (
     <div className="timeline-container" ref={containerRef}>
@@ -318,7 +390,11 @@ export const Timeline: React.FC<TimelineProps> = ({
         </div>
       )}
 
-      <svg ref={svgRef} className="timeline-svg">
+      <svg
+        ref={svgRef}
+        className="timeline-svg"
+        style={{ height: `${swimlanes.totalHeight}px`, minHeight: '100%' }}
+      >
         <defs>
           <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#a78bfa" />
@@ -328,7 +404,7 @@ export const Timeline: React.FC<TimelineProps> = ({
           </marker>
 
           {/* Strict ClipPaths for Era Bands */}
-          {eraLayout.positionedEras.map(era => {
+          {swimlanes.allPositionedEras.map(era => {
             const x1 = xScale(era.startYear);
             const x2 = xScale(era.endYear);
             const width = Math.max(0, x2 - x1);
@@ -344,7 +420,7 @@ export const Timeline: React.FC<TimelineProps> = ({
             const x1 = xScale(artist.birthYear);
             const x2 = xScale(artist.deathYear);
             const rectWidth = Math.max(20, x2 - x1);
-            const y = artistStartY + artist.row * rowHeight;
+            const y = artist.y;
             return (
               <clipPath key={`clip-artist-${artist.id}`} id={`clip-artist-${artist.id}`}>
                 <rect x={x1 + 3} y={y} width={Math.max(0, rectWidth - 6)} height={rectHeight} />
@@ -353,18 +429,42 @@ export const Timeline: React.FC<TimelineProps> = ({
           })}
         </defs>
 
-        {/* Lane Tier Headers (Left Axis Labels) */}
-        <g className="lane-labels-group">
-          {eraLayout.laneYMap.has(1) && (
-            <text x={12} y={eraLayout.laneYMap.get(1)!} className="lane-header-label">{getUIText('macroErasLane', lang)}</text>
-          )}
-          {lodTier >= 2 && eraLayout.laneYMap.has(2) && (
-            <text x={12} y={eraLayout.laneYMap.get(2)!} className="lane-header-label">{getUIText('movementsLane', lang)}</text>
-          )}
-          {lodTier >= 3 && eraLayout.laneYMap.has(3) && (
-            <text x={12} y={eraLayout.laneYMap.get(3)!} className="lane-header-label">{getUIText('schoolsLane', lang)}</text>
-          )}
-        </g>
+          {/* Swimlane Discipline Section Headers and Dividers */}
+          <g className="swimlane-headers-group">
+            {swimlanes.lanes.map(lane => (
+              <g key={`lane-header-${lane.discipline}`} className="swimlane-header-group">
+                <line
+                  x1={0}
+                  y1={lane.headerY}
+                  x2={dimensions.width}
+                  y2={lane.headerY}
+                  stroke="rgba(217, 167, 74, 0.25)"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                />
+                <rect
+                  x={12}
+                  y={lane.headerY - 12}
+                  width={160}
+                  height={24}
+                  rx={12}
+                  fill="rgba(15, 17, 23, 0.9)"
+                  stroke="var(--accent-gold)"
+                  strokeWidth={1}
+                />
+                <text
+                  x={24}
+                  y={lane.headerY + 4}
+                  fill="var(--accent-gold)"
+                  fontWeight={700}
+                  fontSize={12}
+                  letterSpacing="0.05em"
+                >
+                  {lane.icon} {lane.title.toUpperCase()}
+                </text>
+              </g>
+            ))}
+          </g>
 
         {/* Year Grid Lines */}
         <g className="grid-group">
@@ -375,18 +475,18 @@ export const Timeline: React.FC<TimelineProps> = ({
               <line
                 key={`grid-${year}`}
                 x1={x}
-                y1={42}
+                y1={30}
                 x2={x}
-                y2={dimensions.height}
+                y2={swimlanes.totalHeight}
                 className="grid-line"
               />
             );
           })}
         </g>
 
-        {/* Non-overlapping Sub-Row Movement & Era Lanes */}
+        {/* Era Movement Bands */}
         <g className="eras-group">
-          {eraLayout.positionedEras.map(era => {
+          {swimlanes.allPositionedEras.map(era => {
             const x1 = xScale(era.startYear);
             const x2 = xScale(era.endYear);
             const width = Math.max(0, x2 - x1);
@@ -435,28 +535,32 @@ export const Timeline: React.FC<TimelineProps> = ({
           })}
         </g>
 
-        {/* Dynamic Year Axis Header */}
+        {/* Dynamic Year Axis Headers per Swimlane */}
         <g className="axis-group">
-          <line
-            x1={0}
-            y1={axisY}
-            x2={dimensions.width}
-            y2={axisY}
-            stroke="rgba(255, 255, 255, 0.15)"
-            strokeWidth={1}
-          />
-          {ticks.map(year => {
-            const x = xScale(year);
-            if (x < 0 || x > dimensions.width) return null;
-            return (
-              <g key={`tick-${year}`} transform={`translate(${x}, ${axisY})`}>
-                <line y1={-6} y2={6} className="major-tick-line" />
-                <text y={20} className="year-tick-text">
-                  {formatYear(year)}
-                </text>
-              </g>
-            );
-          })}
+          {swimlanes.lanes.map(lane => (
+            <g key={`axis-lane-${lane.discipline}`}>
+              <line
+                x1={0}
+                y1={lane.axisY}
+                x2={dimensions.width}
+                y2={lane.axisY}
+                stroke="rgba(255, 255, 255, 0.15)"
+                strokeWidth={1}
+              />
+              {ticks.map(year => {
+                const x = xScale(year);
+                if (x < 0 || x > dimensions.width) return null;
+                return (
+                  <g key={`tick-${lane.discipline}-${year}`} transform={`translate(${x}, ${lane.axisY})`}>
+                    <line y1={-4} y2={4} className="major-tick-line" />
+                    <text y={16} className="year-tick-text">
+                      {formatYear(year)}
+                    </text>
+                  </g>
+                );
+              })}
+            </g>
+          ))}
         </g>
 
         {/* Artist Rectangles */}
@@ -465,7 +569,7 @@ export const Timeline: React.FC<TimelineProps> = ({
             const x1 = xScale(artist.birthYear);
             const x2 = xScale(artist.deathYear);
             const rectWidth = Math.max(20, x2 - x1);
-            const y = artistStartY + artist.row * rowHeight;
+            const y = artist.y;
             const xCenter = x1 + rectWidth / 2;
 
             if (x2 < 0 || x1 > dimensions.width) return null;

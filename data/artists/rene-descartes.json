@@ -1,0 +1,25 @@
+{
+  "id": "rene-descartes",
+  "name": "René Descartes",
+  "namePl": "René Descartes (Kartezjusz)",
+  "discipline": "philosophy",
+  "era": "phil-rationalism",
+  "birthYear": 1596,
+  "deathYear": 1650,
+  "nationality": "French",
+  "nationalityPl": "Francuz",
+  "bio": "French philosopher, mathematician, and scientist who invented analytical geometry and articulated 'Cogito, ergo sum'.",
+  "bioPl": "Francuski filozof, matematyk i naukowiec. Twórca geometrii analitycznej oraz słynnej formuły 'Cogito ergo sum'.",
+  "notableWorks": ["Discourse on the Method", "Meditations on First Philosophy"],
+  "notableWorksPl": ["Rozprawa o metodzie", "Medytacje o pierwszej filozofii"],
+  "imageUrl": null,
+  "impactScore": 9.9,
+  "wikidataId": "Q9191",
+  "relationships": {
+    "influencedBy": ["aristotle", "plato"],
+    "influenced": ["baruch-spinoza", "john-locke", "immanuel-kant"],
+    "contemporaries": ["galileo-galilei", "caravaggio"],
+    "movements": ["phil-rationalism"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Ren%C3%A9_Descartes"]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "friedrich-nietzsche",
+  "name": "Friedrich Nietzsche",
+  "namePl": "Friedrich Nietzsche",
+  "discipline": "philosophy",
+  "era": "phil-modern",
+  "birthYear": 1844,
+  "deathYear": 1900,
+  "nationality": "German",
+  "nationalityPl": "Niemiec",
+  "bio": "German philosopher, cultural critic, and philologist whose work has exerted a profound influence on modern intellectual history.",
+  "bioPl": "Niemiecki filozof, krytyk kultury i filolog, którego myśl wywarła ogromny wpływ na współczesną historię intelektualną.",
+  "notableWorks": ["Thus Spoke Zarathustra", "Beyond Good and Evil", "The Birth of Tragedy"],
+  "notableWorksPl": ["Tako rzecze Zaratustra", "Poza dobrem i złem", "Narodziny tragedii"],
+  "imageUrl": null,
+  "impactScore": 9.9,
+  "wikidataId": "Q9355",
+  "relationships": {
+    "influencedBy": ["schopenhauer", "richard-wagner"],
+    "influenced": ["franz-kafka", "martin-heidegger", "jean-paul-sartre"],
+    "contemporaries": ["richard-wagner", "fyodor-dostoevsky"],
+    "movements": ["phil-modern"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Friedrich_Nietzsche"]
+}

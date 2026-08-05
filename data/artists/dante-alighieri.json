@@ -1,0 +1,25 @@
+{
+  "id": "dante-alighieri",
+  "name": "Dante Alighieri",
+  "namePl": "Dante Alighieri",
+  "discipline": "literature",
+  "era": "lit-medieval",
+  "birthYear": 1265,
+  "deathYear": 1321,
+  "nationality": "Italian",
+  "nationalityPl": "Włoch",
+  "bio": "Italian poet, writer, and philosopher. His Divine Comedy is widely considered the pre-eminent work in Italian literature and a masterpiece of world literature.",
+  "bioPl": "Włoski poeta, pisarz i filozof. Jego Boska Komedia uważana jest za najwybitniejsze dzieło literatury włoskiej i arcydzieło literatury światowej.",
+  "notableWorks": ["Divine Comedy (Inferno, Purgatorio, Paradiso)", "La Vita Nuova"],
+  "notableWorksPl": ["Boska Komedia (Piekło, Czyściec, Raj)", "Życie nowe"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q1067",
+  "relationships": {
+    "influencedBy": ["lit-ancient"],
+    "influenced": ["geoffrey-chaucer", "william-shakespeare", "john-milton"],
+    "contemporaries": ["giotto"],
+    "movements": ["lit-medieval"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Dante_Alighieri"]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "gian-lorenzo-bernini",
+  "name": "Gian Lorenzo Bernini",
+  "namePl": "Gian Lorenzo Bernini",
+  "discipline": "sculpture",
+  "era": "sculpt-masterworks",
+  "birthYear": 1598,
+  "deathYear": 1680,
+  "nationality": "Italian",
+  "nationalityPl": "Włoch",
+  "bio": "Italian sculptor and architect. A major figure in the world of architecture, he was the leading sculptor of his age, credited with creating the Baroque style of sculpture.",
+  "bioPl": "Włoski rzeźbiarz i architekt barokowy. Czołowa postać sztuki europejskiej XVII wieku, uznawany za twórcę rzeźby barokowej.",
+  "notableWorks": ["Ecstasy of Saint Teresa", "David", "Apollo and Daphne", "St. Peter's Square Colonnade"],
+  "notableWorksPl": ["Ekstaza św. Teresy", "Dawid", "Apollo i Dafne", "Kolumnada Placu św. Piotra"],
+  "imageUrl": null,
+  "impactScore": 9.8,
+  "wikidataId": "Q160538",
+  "relationships": {
+    "influencedBy": ["michelangelo"],
+    "influenced": ["auguste-rodin"],
+    "contemporaries": ["caravaggio", "francesco-borromini"],
+    "movements": ["sculpt-masterworks", "arch-renaissance-baroque"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Gian_Lorenzo_Bernini"]
+}

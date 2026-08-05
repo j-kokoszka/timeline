@@ -1,0 +1,25 @@
+{
+  "id": "johann-wolfgang-von-goethe",
+  "name": "Johann Wolfgang von Goethe",
+  "namePl": "Johann Wolfgang von Goethe",
+  "discipline": "literature",
+  "era": "lit-romanticism",
+  "birthYear": 1749,
+  "deathYear": 1832,
+  "nationality": "German",
+  "nationalityPl": "Niemiec",
+  "bio": "German writer and statesman. His body of work includes epic and lyric poetry, prose, drama, and treatises on botany and color.",
+  "bioPl": "Niemiecki pisarz, dramaturg i mąż stanu. Jego dorobek obejmuje poezję epicką i liryczną, dramat, prozę oraz rozprawy z botaniki i teorii kolorów.",
+  "notableWorks": ["Faust", "The Sorrows of Young Werther", "Prometheus"],
+  "notableWorksPl": ["Faust", "Cierpienia młodego Wertera", "Prometeusz"],
+  "imageUrl": null,
+  "impactScore": 9.9,
+  "wikidataId": "Q5879",
+  "relationships": {
+    "influencedBy": ["william-shakespeare"],
+    "influenced": ["lord-byron", "adam-mickiewicz"],
+    "contemporaries": ["immanuel-kant", "schiller"],
+    "movements": ["lit-romanticism"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Johann_Wolfgang_von_Goethe"]
+}

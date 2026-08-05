@@ -1,0 +1,25 @@
+{
+  "id": "stanislaw-moniuszko",
+  "name": "Stanisław Moniuszko",
+  "namePl": "Stanisław Moniuszko",
+  "discipline": "music",
+  "era": "music-romantic",
+  "birthYear": 1819,
+  "deathYear": 1872,
+  "nationality": "Polish",
+  "nationalityPl": "Polak",
+  "bio": "Polish composer, conductor, and teacher. Widely considered the father of Polish national opera.",
+  "bioPl": "Polski kompozytor, dyrygent i pedagog. Powszechnie uważany za ojca polskiej opery narodowej.",
+  "notableWorks": ["Halka", "The Haunted Manor (Straszny dwór)", "Prząśniczka", "Verbum Nobile"],
+  "notableWorksPl": ["Halka", "Straszny dwór", "Prząśniczka", "Verbum Nobile"],
+  "imageUrl": null,
+  "impactScore": 9.5,
+  "wikidataId": "Q312480",
+  "relationships": {
+    "influencedBy": ["frederic-chopin", "ludwig-van-beethoven"],
+    "influenced": ["mieczyslaw-karlowicz", "karol-szymanowski"],
+    "contemporaries": ["frederic-chopin", "franz-liszt", "richard-wagner"],
+    "movements": ["music-romantic", "music-nationalism"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Stanis%C5%82aw_Moniuszko"]
+}

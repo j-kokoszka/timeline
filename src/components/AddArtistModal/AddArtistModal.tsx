@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Sparkles, PlusCircle } from 'lucide-react';
 import { Artist, Discipline, Language, Era } from '../../types/timeline';
-import { fetchCulturalEntityData, autoDetectArtistDetails } from '../../services/cultureApi';
+import { fetchCulturalEntityData, autoDetectArtistDetails, autoExtractNotableWorks, autoGenerateRelationships } from '../../services/cultureApi';
 import { saveCustomArtist, unhideArtist } from '../../services/userStorage';
 import './AddArtistModal.css';
 
@@ -37,42 +37,49 @@ export const AddArtistModal: React.FC<AddArtistModalProps> = ({
     if (!name.trim()) return;
     setIsFetchingWiki(true);
     const data = await fetchCulturalEntityData(name);
-    if (data.summary) {
-      setBio(data.summary);
-      const detected = autoDetectArtistDetails(name, data.summary, eras);
-      setDiscipline(detected.discipline);
-      setEraId(detected.eraId);
-      setBirthYear(detected.birthYear);
-      setDeathYear(detected.deathYear);
+    if (data.summary || data.description) {
+      const rawText = `${data.description || ''} ${data.summary || ''}`;
+      setBio(data.summary || data.description || '');
+      const detected = autoDetectArtistDetails(name, rawText, eras);
+      if (detected) {
+        setDiscipline(detected.discipline);
+        setEraId(detected.eraId);
+        setBirthYear(detected.birthYear);
+        setDeathYear(detected.deathYear);
+      }
     }
     setIsFetchingWiki(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
-    const id = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    const id = name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-');
+
+    const tempArtist = { id, name, birthYear, deathYear, discipline, bio, eraId };
+    const relationships = autoGenerateRelationships(tempArtist, eras as any);
+    const notableWorks = await autoExtractNotableWorks(name, bio);
 
     const newArtist: Artist = {
-      id,
-      name,
-      discipline,
+      ...tempArtist,
       era: eraId,
-      birthYear,
-      deathYear,
       nationality,
-      bio,
       impactScore,
-      notableWorks: [],
-      catalog: [],
+      notableWorks,
+      catalog: notableWorks.map((work, idx) => ({
+        id: `${id}-work-${idx}`,
+        title: work,
+        year: Math.round(birthYear + (deathYear - birthYear) * 0.5),
+        medium: `${discipline} / Masterwork`
+      })),
       sources: [],
-      relationships: {
-        influencedBy: [],
-        influenced: [],
-        contemporaries: [],
-        movements: [eraId]
-      }
+      relationships
     };
 
     unhideArtist(id);

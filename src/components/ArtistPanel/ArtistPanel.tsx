@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { X, ExternalLink, Star, Heart, Image as ImageIcon, BookOpen, Layers, CheckCircle2, Trash2 } from 'lucide-react';
+import { X, ExternalLink, Star, Heart, Image as ImageIcon, BookOpen, Layers, CheckCircle2, Trash2, Search, Sparkles } from 'lucide-react';
 import { Artist, Era, Language, ArtworkEntry } from '../../types/timeline';
 import { getLocalizedString, getUIText } from '../../lib/i18n';
-import { fetchCulturalEntityData, fetchArtworkData, CulturalEntityData, ArtworkData } from '../../services/cultureApi';
+import { fetchCulturalEntityData, fetchArtworkData, fetchFullArtistCatalog, getExternalCatalogLinks, CulturalEntityData, ArtworkData } from '../../services/cultureApi';
 import { getFavorites, toggleFavorite, getUserRatings, setUserRating, getUserArtworkRatings, setUserArtworkRating } from '../../services/userStorage';
 import { getStudiedWorks, toggleWorkStudied } from '../../services/cloudSync';
 import './ArtistPanel.css';
@@ -34,6 +34,10 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
   const [selectedArtwork, setSelectedArtwork] = useState<ArtworkData | null>(null);
   const [zoomPortraitUrl, setZoomPortraitUrl] = useState<string | null>(null);
 
+  const [fullCatalog, setFullCatalog] = useState<ArtworkEntry[] | null>(null);
+  const [isFetchingFullCatalog, setIsFetchingFullCatalog] = useState<boolean>(false);
+  const [workSearchFilter, setWorkSearchFilter] = useState<string>('');
+
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [userStars, setUserStars] = useState<number>(0);
   const [artworkRatings, setArtworkRatingsState] = useState<Record<string, number>>({});
@@ -60,6 +64,29 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
     }));
   }, [artist, lang]);
 
+  // Reset full catalog when artist changes
+  useEffect(() => {
+    setFullCatalog(null);
+    setWorkSearchFilter('');
+  }, [artist.id]);
+
+  const handleLoadFullCatalog = async () => {
+    setIsFetchingFullCatalog(true);
+    const full = await fetchFullArtistCatalog(artistName, artist.discipline);
+    setFullCatalog(full);
+    setIsFetchingFullCatalog(false);
+  };
+
+  const displayCatalog = useMemo(() => {
+    const base = fullCatalog || effectiveCatalog;
+    if (!workSearchFilter.trim()) return base;
+    return base.filter(w => w.title.toLowerCase().includes(workSearchFilter.toLowerCase()));
+  }, [fullCatalog, effectiveCatalog, workSearchFilter]);
+
+  const externalLinks = useMemo(() => {
+    return getExternalCatalogLinks(artistName, artist.discipline, lang);
+  }, [artistName, artist.discipline, lang]);
+
   // Load live Wikidata / Wikipedia API image & bio data
   useEffect(() => {
     let isMounted = true;
@@ -72,8 +99,8 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
       if (isMounted) setLiveData(data);
     });
 
-    // Fetch thumbnails for effective catalog items
-    effectiveCatalog.forEach(item => {
+    // Fetch thumbnails for catalog items
+    displayCatalog.forEach(item => {
       fetchArtworkData(item.title).then(artData => {
         if (isMounted && artData) {
           setArtworksMap(prev => ({ ...prev, [item.title]: artData }));
@@ -97,7 +124,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [artist, effectiveCatalog]);
+  }, [artist, displayCatalog]);
 
   const handleToggleFav = () => {
     const updated = toggleFavorite(artist.id);
@@ -205,7 +232,7 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
             className={`tab-btn ${activeTab === 'catalog' ? 'active' : ''}`}
             onClick={() => setActiveTab('catalog')}
           >
-            <BookOpen size={13} style={{ display: 'inline', marginRight: '4px' }} /> Catalogue Raisonné ({effectiveCatalog.length})
+            <BookOpen size={13} style={{ display: 'inline', marginRight: '4px' }} /> Catalogue Raisonné ({displayCatalog.length})
           </button>
         </nav>
 
@@ -272,6 +299,57 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
             <div className="panel-section">
               <h3 className="section-title">{getUIText('biography', lang)}</h3>
               <p className="artist-bio">{liveData?.summary || bio}</p>
+
+              {/* Read Full In-Depth Biography CTA Buttons */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 14 }}>
+                <a
+                  href={liveData?.wikipediaUrl || `https://en.wikipedia.org/wiki/${encodeURIComponent(artistName.replace(/\s+/g, '_'))}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '10px 16px',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, rgba(217, 167, 74, 0.16) 0%, rgba(217, 167, 74, 0.06) 100%)',
+                    border: '1px solid var(--accent-gold)',
+                    color: 'var(--accent-gold)',
+                    borderRadius: 8,
+                    textDecoration: 'none',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
+                  }}
+                >
+                  <BookOpen size={16} />
+                  <span>{lang === 'pl' ? `Przeczytaj Pełną Biografię (${artistName})` : `Read Full In-Depth Article (${artistName})`}</span>
+                  <ExternalLink size={14} />
+                </a>
+
+                <a
+                  href={`https://www.google.com/search?q=${encodeURIComponent(artistName + ' biography history')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    padding: '6px 12px',
+                    fontSize: 11,
+                    color: 'var(--text-muted)',
+                    textDecoration: 'none',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 6
+                  }}
+                >
+                  <span>{lang === 'pl' ? 'Szukaj więcej opracowań w Google' : 'Search more in-depth historical sources'}</span>
+                  <ExternalLink size={12} />
+                </a>
+              </div>
             </div>
 
             {/* Notable Works Interactive Gallery Grid */}
@@ -415,9 +493,83 @@ export const ArtistPanel: React.FC<ArtistPanelProps> = ({
         ) : (
           /* Detailed Catalogue Raisonné (Oeuvre List) */
           <div className="panel-section">
-            <h3 className="section-title">Catalogue Raisonné ({effectiveCatalog.length} Masterworks)</h3>
+
+            {/* Specialized External Catalog Hub Links */}
+            {externalLinks.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16, background: 'rgba(217, 167, 74, 0.07)', border: '1px solid rgba(217, 167, 74, 0.22)', borderRadius: 8, padding: 12 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', color: 'var(--accent-gold)', letterSpacing: '0.05em' }}>
+                  🌐 {lang === 'pl' ? 'Specjalistyczne Portale & Pełne Katalogi Dzieł' : 'Specialized Portals & Complete Catalogs'}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+                  {externalLinks.map((link, idx) => (
+                    <a
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        background: 'rgba(255, 255, 255, 0.04)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 6,
+                        padding: '8px 10px',
+                        color: 'var(--text-main)',
+                        textDecoration: 'none',
+                        fontSize: 12,
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 16 }}>{link.icon}</span>
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>{link.name}</div>
+                          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{link.description}</div>
+                        </div>
+                      </div>
+                      <ExternalLink size={14} color="var(--accent-gold)" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 className="section-title" style={{ margin: 0 }}>
+                  Catalogue Raisonné ({displayCatalog.length} {lang === 'pl' ? 'Dzieł' : 'Works'})
+                </h3>
+                <button
+                  className="secondary-cta-btn"
+                  onClick={handleLoadFullCatalog}
+                  disabled={isFetchingFullCatalog}
+                  style={{ padding: '6px 12px', fontSize: 11, gap: 6 }}
+                >
+                  <Sparkles size={13} color="var(--accent-gold)" />
+                  <span>
+                    {isFetchingFullCatalog
+                      ? (lang === 'pl' ? 'Pobieranie...' : 'Fetching...')
+                      : (lang === 'pl' ? 'Pobierz z Wikipedii (30+)' : 'Load Wikipedia List (30+)')}
+                  </span>
+                </button>
+              </div>
+
+              {/* Filter Search Input */}
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border-subtle)', borderRadius: 6, padding: '4px 10px', gap: 8 }}>
+                <Search size={14} color="var(--text-muted)" />
+                <input
+                  type="text"
+                  placeholder={lang === 'pl' ? 'Filtruj utwory / opere...' : 'Filter works by title...'}
+                  value={workSearchFilter}
+                  onChange={(e) => setWorkSearchFilter(e.target.value)}
+                  style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', fontSize: 12, outline: 'none', width: '100%' }}
+                />
+              </div>
+            </div>
+
             <div className="catalog-list">
-              {effectiveCatalog.map(item => {
+              {displayCatalog.map(item => {
                 const art = artworksMap[item.title];
                 const workTitle = lang === 'pl' && item.titlePl ? item.titlePl : item.title;
                 const location = lang === 'pl' && item.locationPl ? item.locationPl : item.location;

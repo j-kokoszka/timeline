@@ -1,0 +1,25 @@
+{
+  "id": "johann-sebastian-bach",
+  "name": "Johann Sebastian Bach",
+  "namePl": "Johann Sebastian Bach",
+  "discipline": "music",
+  "era": "music-baroque",
+  "birthYear": 1685,
+  "deathYear": 1750,
+  "nationality": "German",
+  "nationalityPl": "Niemiec",
+  "bio": "German composer and musician of the late Baroque period, widely regarded as one of the greatest composers in Western history. Known for counterpoint, fugue, and sacred choral works.",
+  "bioPl": "Niemiecki kompozytor i muzyk późnego baroku, uznawany za jednego z najwybitniejszych twórców w historii muzyki zachodniej. Mistrz polifonii, fugi i muzyki sakralnej.",
+  "notableWorks": ["The Well-Tempered Clavier", "Mass in B minor", "St Matthew Passion", "Brandenburg Concertos"],
+  "notableWorksPl": ["Dobrze zastrojony klawesyn", "Msza h-moll", "Pasja według św. Mateusza", "Koncerty brandenburskie"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q1339",
+  "relationships": {
+    "influencedBy": ["music-baroque"],
+    "influenced": ["wolfgang-amadeus-mozart", "ludwig-van-beethoven", "frederic-chopin"],
+    "contemporaries": ["george-frideric-handel", "antonio-vivaldi"],
+    "movements": ["music-baroque"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Johann_Sebastian_Bach"]
+}

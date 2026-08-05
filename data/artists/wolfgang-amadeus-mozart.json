@@ -1,0 +1,25 @@
+{
+  "id": "wolfgang-amadeus-mozart",
+  "name": "Wolfgang Amadeus Mozart",
+  "namePl": "Wolfgang Amadeus Mozart",
+  "discipline": "music",
+  "era": "music-classical",
+  "birthYear": 1756,
+  "deathYear": 1791,
+  "nationality": "Austrian",
+  "nationalityPl": "Austryjak",
+  "bio": "Prolific and influential composer of the Classical period. Composed over 800 works of virtually every genre of his time.",
+  "bioPl": "Niezwykle płodny i wpływowy kompozytor ery klasycyzmu. Skomponował ponad 800 utworów niemal każdego gatunku muzycznego epoki.",
+  "notableWorks": ["The Magic Flute", "Requiem in D minor", "Symphony No. 40", "Don Giovanni"],
+  "notableWorksPl": ["Czarodziejski flet", "Requiem d-moll", "Symphonia nr 40", "Don Giovanni"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q255",
+  "relationships": {
+    "influencedBy": ["johann-sebastian-bach"],
+    "influenced": ["ludwig-van-beethoven", "frederic-chopin"],
+    "contemporaries": ["joseph-haydn"],
+    "movements": ["music-classical"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart"]
+}

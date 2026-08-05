@@ -1,0 +1,25 @@
+{
+  "id": "ludwig-van-beethoven",
+  "name": "Ludwig van Beethoven",
+  "namePl": "Ludwig van Beethoven",
+  "discipline": "music",
+  "era": "music-classical",
+  "birthYear": 1770,
+  "deathYear": 1827,
+  "nationality": "German",
+  "nationalityPl": "Niemiec",
+  "bio": "German composer and pianist. A crucial figure in the transition between the Classical and Romantic eras in Western art music.",
+  "bioPl": "Niemiecki kompozytor i pianista. Kluczowa postać w przejściu między epoką klasycyzmu a romantyzmem w muzyce zachodniej.",
+  "notableWorks": ["Symphony No. 9 (Ode to Joy)", "Symphony No. 5", "Moonlight Sonata", "Fidelio"],
+  "notableWorksPl": ["IX Symfonia (Oda do radości)", "V Symfonia", "Sonata Księżycowa", "Fidelio"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q2551",
+  "relationships": {
+    "influencedBy": ["wolfgang-amadeus-mozart", "johann-sebastian-bach"],
+    "influenced": ["frederic-chopin", "franz-liszt", "richard-wagner"],
+    "contemporaries": ["franz-schubert"],
+    "movements": ["music-classical", "music-romantic"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Ludwig_van_Beethoven"]
+}

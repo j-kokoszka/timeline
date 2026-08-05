@@ -1,0 +1,25 @@
+{
+  "id": "fyodor-dostoevsky",
+  "name": "Fyodor Dostoevsky",
+  "namePl": "Fiodor Dostojewski",
+  "discipline": "literature",
+  "era": "lit-realism",
+  "birthYear": 1821,
+  "deathYear": 1881,
+  "nationality": "Russian",
+  "nationalityPl": "Rosjanin",
+  "bio": "Russian novelist, short story writer, essayist, and journalist. Explored human psychology in the troubled political, social, and spiritual atmospheres of 19th-century Russia.",
+  "bioPl": "Rosyjski powieściopisarz, nowelista i publicysta. Badacz głębi ludzkiej psychiki w skomplikowanym kontekście społecznym i duchowym XIX-wiecznej Rosji.",
+  "notableWorks": ["Crime and Punishment", "The Brothers Karamazov", "The Idiot", "Notes from Underground"],
+  "notableWorksPl": ["Zbrodnia i kara", "Bracia Karamazow", "Idiota", "Notatki z podziemia"],
+  "imageUrl": null,
+  "impactScore": 9.9,
+  "wikidataId": "Q991",
+  "relationships": {
+    "influencedBy": ["william-shakespeare", "alexander-pushkin"],
+    "influenced": ["franz-kafka", "friedrich-nietzsche"],
+    "contemporaries": ["leo-tolstoy", "ivan-turgenev"],
+    "movements": ["lit-realism"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Fyodor_Dostoevsky"]
+}

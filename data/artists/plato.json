@@ -1,0 +1,25 @@
+{
+  "id": "plato",
+  "name": "Plato",
+  "namePl": "Platon",
+  "discipline": "philosophy",
+  "era": "phil-ancient",
+  "birthYear": -428,
+  "deathYear": -348,
+  "nationality": "Greek",
+  "nationalityPl": "Greka",
+  "bio": "Ancient Greek philosopher born in Athens. Founder of the Academy, the first institution of higher learning in the Western world.",
+  "bioPl": "Grecki filozof starożytny urodzony w Atenach. Założyciel Akademii – pierwszej uczelni wyższej w świecie zachodnim.",
+  "notableWorks": ["The Republic", "The Symposium", "Phaedo", "Apology"],
+  "notableWorksPl": ["Państwo", "Uczta", "Fedon", "Obrona Sokratesa"],
+  "imageUrl": null,
+  "impactScore": 10.0,
+  "wikidataId": "Q859",
+  "relationships": {
+    "influencedBy": ["socrates"],
+    "influenced": ["aristotle", "thomas-aquinas", "rene-descartes"],
+    "contemporaries": ["socrates"],
+    "movements": ["phil-ancient"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Plato"]
+}

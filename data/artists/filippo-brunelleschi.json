@@ -1,0 +1,25 @@
+{
+  "id": "filippo-brunelleschi",
+  "name": "Filippo Brunelleschi",
+  "namePl": "Filippo Brunelleschi",
+  "discipline": "architecture",
+  "era": "arch-renaissance-baroque",
+  "birthYear": 1377,
+  "deathYear": 1446,
+  "nationality": "Italian",
+  "nationalityPl": "Włoch",
+  "bio": "Italian architect and designer, considered a founding father of Renaissance architecture. Built the monumental dome of Florence Cathedral.",
+  "bioPl": "Włoski architekt i inżynier, uznawany za ojca architektury renesansu. Twórca monumentalnej kopuły katedry w Florencji.",
+  "notableWorks": ["Dome of Florence Cathedral (Santa Maria del Fiore)", "Ospedale degli Innocenti"],
+  "notableWorksPl": ["Kopuła Katedry we Florencji", "Szpital Niewiniątek"],
+  "imageUrl": null,
+  "impactScore": 9.7,
+  "wikidataId": "Q164808",
+  "relationships": {
+    "influencedBy": ["classical-antiquity-macro"],
+    "influenced": ["michelangelo", "donato-bramante"],
+    "contemporaries": ["donatello", "masaccio"],
+    "movements": ["arch-renaissance-baroque"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Filippo_Brunelleschi"]
+}

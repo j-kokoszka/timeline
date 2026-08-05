@@ -1,0 +1,25 @@
+{
+  "id": "frederic-chopin",
+  "name": "Frédéric Chopin",
+  "namePl": "Fryderyk Chopin",
+  "discipline": "music",
+  "era": "music-romantic",
+  "birthYear": 1810,
+  "deathYear": 1849,
+  "nationality": "Polish",
+  "nationalityPl": "Polak",
+  "bio": "Polish composer and virtuoso pianist of the Romantic era who wrote primarily for solo piano.",
+  "bioPl": "Polski kompozytor i wirtuoz pianista epoki romantyzmu, piszący głównie na fortepian solo.",
+  "notableWorks": ["Nocturnes Op. 9", "Ballade No. 1 in G minor", "Polonaise in A-flat major (Heroic)", "Piano Concerto No. 1"],
+  "notableWorksPl": ["Nokturny op. 9", "I Ballada g-moll", "Polonez As-dur (Heroiczny)", "I Koncert fortepianowy"],
+  "imageUrl": null,
+  "impactScore": 9.8,
+  "wikidataId": "Q1268",
+  "relationships": {
+    "influencedBy": ["johann-sebastian-bach", "wolfgang-amadeus-mozart"],
+    "influenced": ["franz-liszt", "claude-debussy"],
+    "contemporaries": ["franz-liszt", "robert-schumann"],
+    "movements": ["music-romantic"]
+  },
+  "sources": ["https://en.wikipedia.org/wiki/Fr%C3%A9d%C3%A9ric_Chopin"]
+}
